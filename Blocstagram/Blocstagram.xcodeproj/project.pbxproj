@@ -25,6 +25,10 @@
 		04B5729F1C82C99100BFF958 /* 10.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 04B572951C82C99100BFF958 /* 10.jpg */; };
 		04B572A21C82CB5500BFF958 /* ImagesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B572A11C82CB5500BFF958 /* ImagesTableViewController.m */; };
 		04B572A51C82DF0200BFF958 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B572A41C82DF0200BFF958 /* ViewController.m */; };
+		04B572A81C835C8F00BFF958 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B572A71C835C8F00BFF958 /* User.m */; };
+		04B572AB1C835D8F00BFF958 /* Media.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B572AA1C835D8F00BFF958 /* Media.m */; };
+		04B572AE1C835FEA00BFF958 /* Comment.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B572AD1C835FEA00BFF958 /* Comment.m */; };
+		04B572B11C83614800BFF958 /* DataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B572B01C83614800BFF958 /* DataSource.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +76,14 @@
 		04B572A11C82CB5500BFF958 /* ImagesTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImagesTableViewController.m; sourceTree = "<group>"; };
 		04B572A31C82DF0200BFF958 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		04B572A41C82DF0200BFF958 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		04B572A61C835C8F00BFF958 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
+		04B572A71C835C8F00BFF958 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
+		04B572A91C835D8F00BFF958 /* Media.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Media.h; sourceTree = "<group>"; };
+		04B572AA1C835D8F00BFF958 /* Media.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Media.m; sourceTree = "<group>"; };
+		04B572AC1C835FEA00BFF958 /* Comment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Comment.h; sourceTree = "<group>"; };
+		04B572AD1C835FEA00BFF958 /* Comment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Comment.m; sourceTree = "<group>"; };
+		04B572AF1C83614800BFF958 /* DataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataSource.h; sourceTree = "<group>"; };
+		04B572B01C83614800BFF958 /* DataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataSource.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +141,14 @@
 				04B572A41C82DF0200BFF958 /* ViewController.m */,
 				04B572A01C82CB5500BFF958 /* ImagesTableViewController.h */,
 				04B572A11C82CB5500BFF958 /* ImagesTableViewController.m */,
+				04B572A61C835C8F00BFF958 /* User.h */,
+				04B572A71C835C8F00BFF958 /* User.m */,
+				04B572A91C835D8F00BFF958 /* Media.h */,
+				04B572AA1C835D8F00BFF958 /* Media.m */,
+				04B572AC1C835FEA00BFF958 /* Comment.h */,
+				04B572AD1C835FEA00BFF958 /* Comment.m */,
+				04B572AF1C83614800BFF958 /* DataSource.h */,
+				04B572B01C83614800BFF958 /* DataSource.m */,
 				04B572641C82C60B00BFF958 /* Assets.xcassets */,
 				04B572661C82C60B00BFF958 /* LaunchScreen.storyboard */,
 				04B572691C82C60B00BFF958 /* Info.plist */,
@@ -319,6 +339,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04B572AE1C835FEA00BFF958 /* Comment.m in Sources */,
+				04B572AB1C835D8F00BFF958 /* Media.m in Sources */,
+				04B572B11C83614800BFF958 /* DataSource.m in Sources */,
+				04B572A81C835C8F00BFF958 /* User.m in Sources */,
 				04B5725D1C82C60A00BFF958 /* AppDelegate.m in Sources */,
 				04B5725A1C82C60A00BFF958 /* main.m in Sources */,
 				04B572A51C82DF0200BFF958 /* ViewController.m in Sources */,

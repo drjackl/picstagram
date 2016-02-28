@@ -7,10 +7,14 @@
 //
 
 #import "ImagesTableViewController.h"
+#import "DataSource.h" // for our Model
+#import "User.h"
+#import "Media.h"
+#import "Comment.h"
 
 @interface ImagesTableViewController ()
 
-@property (nonatomic) NSMutableArray* images; // default strong
+//@property (nonatomic) NSMutableArray* images; // default strong, cheap model
 
 @end
 
@@ -20,7 +24,7 @@
     self = [super initWithStyle:style];
     if (self) {
         // custom initialization
-        self.images = [NSMutableArray array];
+        //self.images = [NSMutableArray array]; // cheap model
     }
     return self;
 }
@@ -28,14 +32,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // populate after initializing array
-    for (int i = 1; i <= 10; i++) {
-        NSString* imageName = [NSString stringWithFormat:@"%d.jpg", i];
-        UIImage* image = [UIImage imageNamed:imageName];
-        if (image) {
-            [self.images addObject:image];
-        }
-    }
+//    // populate (cheap model) after initializing array
+//    for (int i = 1; i <= 10; i++) {
+//        NSString* imageName = [NSString stringWithFormat:@"%d.jpg", i];
+//        UIImage* image = [UIImage imageNamed:imageName];
+//        if (image) {
+//            [self.images addObject:image];
+//        }
+//    }
     
     // UITableViewCell represents a row and at least one cell type must be registered
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"imageCell"]; // UITableView*Cell* not UITableView
@@ -52,6 +56,13 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - Miscellaneous
+
+// convenience method
+- (NSArray*) items {
+    return [DataSource sharedInstance].mediaItems;
+}
+
 #pragma mark - Table view data source
 
 // can delete since the default returns 1, which we want
@@ -63,7 +74,8 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 //#warning Incomplete implementation, return the number of rows
 //    return 0;
-    return self.images.count; // our 10 images
+    //return self.images.count; // our 10 images (from cheap model)
+    return [self items].count; // real model
 }
 
 // most important method: content, image and accessory views all customizable here
@@ -89,9 +101,11 @@
         [cell.contentView addSubview:imageView]; 
     }
     
-    // once imageView gotten, set the image
-    UIImage* image = self.images[indexPath.row];
-    imageView.image = image;
+//    // once imageView gotten, set the image (based off cheap model)
+//    UIImage* image = self.images[indexPath.row];
+//    imageView.image = image;
+    Media* item = [self items][indexPath.row];
+    imageView.image = item.image;
     
     return cell;
 }
@@ -100,7 +114,9 @@
     //return 300; // fixed length still distorts image
 //    UIImage* image = self.images[indexPath.row];
 //    return image.size.height; // worse as not proportional to screen
-    UIImage* image = self.images[indexPath.row];
+    //UIImage* image = self.images[indexPath.row]; // from cheap model
+    Media* item = [self items][indexPath.row];
+    UIImage* image = item.image;
     return (CGRectGetWidth(self.view.frame) / image.size.width) * image.size.height;
 }
 
@@ -118,7 +134,8 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) { // if user swipes left
         // Delete the row from the data source
-        [self.images removeObjectAtIndex:indexPath.row];
+        //[self.images removeObjectAtIndex:indexPath.row]; // cheap model
+        [DataSource deleteItemAtIndex:indexPath.row]; // real model
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade]; // by itself, this boilerplate throws runtime internal inconsistency exception
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
