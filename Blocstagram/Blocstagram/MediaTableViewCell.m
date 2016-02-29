@@ -27,6 +27,9 @@ static UIColor* commentLabelGray; // bkgd
 static UIColor* linkColor; // username text color
 static NSParagraphStyle* paragraphStyle; // line spacing, text alignment, ¶ spacing
 
+static UIColor* firstCommentColor;
+static NSMutableParagraphStyle* rightalignedParagraphStyle;
+
 @implementation MediaTableViewCell
 
 // "fakes" layout event to get full height
@@ -56,6 +59,11 @@ static NSParagraphStyle* paragraphStyle; // line spacing, text alignment, ¶ spa
     mutableParagraphStyle.paragraphSpacingBefore = 5; // distance between paragraphs
     
     paragraphStyle = mutableParagraphStyle; // all lines indented by 20 points
+    
+    firstCommentColor = [UIColor colorWithRed:255/255.0 green:127/255.0 blue:0 alpha:1]; // #FF7F00
+    
+    rightalignedParagraphStyle = [paragraphStyle mutableCopy];
+    rightalignedParagraphStyle.alignment = NSTextAlignmentRight;
 }
 
 // override designated initializer
@@ -149,6 +157,9 @@ static NSParagraphStyle* paragraphStyle; // line spacing, text alignment, ¶ spa
     [mutableUsernameAndCaptionString addAttribute:NSFontAttributeName value:[boldFont fontWithSize:usernameFontSize] range:usernameRange];
     [mutableUsernameAndCaptionString addAttribute:NSForegroundColorAttributeName value:linkColor range:usernameRange];
     
+    // increase kerning of caption
+    [mutableUsernameAndCaptionString addAttribute:NSKernAttributeName value:@1 range:[baseString rangeOfString:self.mediaItem.caption]];
+    
     return mutableUsernameAndCaptionString;
 }
 
@@ -156,12 +167,25 @@ static NSParagraphStyle* paragraphStyle; // line spacing, text alignment, ¶ spa
     NSMutableAttributedString* commentString = [[NSMutableAttributedString alloc] init];
     
     // "username comment" followed by a line break
-    for (Comment* comment in self.mediaItem.comments) {
-        // "username comment"
+//    for (Comment* comment in self.mediaItem.comments) {
+    [self.mediaItem.comments enumerateObjectsUsingBlock:^(Comment* comment, NSUInteger i, BOOL * _Nonnull stop) { // using block to grab index to find first comment
+        // "username comment<newline>"
         NSString* baseString = [NSString stringWithFormat:@"%@ %@\n", comment.from.userName, comment.text];
         
         // create attributed string
-        NSMutableAttributedString* oneCommentString = [[NSMutableAttributedString alloc] initWithString:baseString attributes:@{NSFontAttributeName : lightFont, NSParagraphStyleAttributeName : paragraphStyle}];
+        NSMutableAttributedString* oneCommentString = [[NSMutableAttributedString alloc] initWithString:baseString attributes:@{NSFontAttributeName : lightFont}];//, NSParagraphStyleAttributeName : paragraphStyle}];
+//        if (i % 2 == 1) { // right-align every other comment
+//            oneCommentString = [[NSMutableAttributedString alloc] initWithString:baseString attributes:@{NSFontAttributeName : lightFont, NSParagraphStyleAttributeName : rightalignedParagraphStyle}];
+//        }
+        if (i % 2 == 0) {
+            [oneCommentString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:[baseString rangeOfString:baseString]];
+        } else { // right-align every other comment
+            [oneCommentString addAttribute:NSParagraphStyleAttributeName value:rightalignedParagraphStyle range:[baseString rangeOfString:baseString]];
+        }
+
+        if (i == 0) { // if first comment, set to orange
+            [oneCommentString addAttribute:NSForegroundColorAttributeName value:firstCommentColor range:[baseString rangeOfString:baseString]]; // is there a better way to specify an all range?
+        }
         
         // bold and purple the username
         NSRange usernameRange = [baseString rangeOfString:comment.from.userName];
@@ -170,7 +194,9 @@ static NSParagraphStyle* paragraphStyle; // line spacing, text alignment, ¶ spa
         
         // append comment
         [commentString appendAttributedString:oneCommentString];
-    }
+//    } // end for
+    }]; // end block
+
     
     return commentString;
 }
