@@ -35,15 +35,17 @@
 //    [[DataSource sharedInstance].mediaItems removeObjectAtIndex:row];
 //}
 
-// deleting item with KVO (else no objects like ImagesTableVC will get notification)
-- (void) deleteMediaItem:(Media*)item {
+//// deleting item with KVO (else no objects like ImagesTableVC will get notification)
+//- (void) deleteMediaItem:(Media*)item {
+//    NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+//    [mutableArrayWithKVO removeObject:item];
+//}
+
+- (void) moveMediaItemToTop:(Media*)item {
     NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
     [mutableArrayWithKVO removeObject:item];
+    [mutableArrayWithKVO insertObject:item atIndex:0];
 }
-
-//- (void) moveMediaItemToTop:(Media*)item {
-//    
-//}
 
 - (instancetype) init {
     self = [super init];
