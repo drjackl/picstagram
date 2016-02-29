@@ -11,6 +11,7 @@
 #import "User.h"
 #import "Media.h"
 #import "Comment.h"
+#import "MediaTableViewCell.h" // our new custom table cell
 
 @interface ImagesTableViewController ()
 
@@ -42,7 +43,9 @@
 //    }
     
     // UITableViewCell represents a row and at least one cell type must be registered
-    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"imageCell"]; // UITableView*Cell* not UITableView
+//    // default table cell
+//    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"imageCell"]; // UITableView*Cell* not UITableView
+    [self.tableView registerClass:[MediaTableViewCell class] forCellReuseIdentifier:@"mediaCell"]; // new custom cell
     
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
@@ -80,32 +83,38 @@
 
 // most important method: content, image and accessory views all customizable here
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    // take ID string and compare it with roster of registered cells (from viewDidLoad)
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"imageCell" forIndexPath:indexPath]; // dequeue returns either brand new or used cell
+//    // default table cell
+//    // take ID string and compare it with roster of registered cells (from viewDidLoad)
+//    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"imageCell" forIndexPath:indexPath]; // dequeue returns either brand new or used cell
+//    
+//    // Configure the cell...
+//    
+//    static NSInteger imageViewTag = 1234; // just needs to be consistent
+//    UIImageView* imageView = (UIImageView*)[cell.contentView viewWithTag:imageViewTag];
+//    
+//    if (!imageView) {
+//        // this is a new cell, it doesn't have an image view yet
+//        imageView = [[UIImageView alloc] init];
+//        imageView.contentMode = UIViewContentModeScaleToFill; // img stretches to fill UIImageView bounds
+//        
+//        imageView.frame = cell.contentView.bounds; // so image consumes cell entirety
+//        
+//        imageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth; // autoresizing can be none, or hwtrlb
+//        
+//        imageView.tag = imageViewTag;
+//        [cell.contentView addSubview:imageView]; 
+//    }
+//    
+////    // once imageView gotten, set the image (based off cheap model)
+////    UIImage* image = self.images[indexPath.row];
+////    imageView.image = image;
+//    Media* item = [self items][indexPath.row];
+//    imageView.image = item.image;
+//    // end default table cell
     
-    // Configure the cell...
-    
-    static NSInteger imageViewTag = 1234; // just needs to be consistent
-    UIImageView* imageView = (UIImageView*)[cell.contentView viewWithTag:imageViewTag];
-    
-    if (!imageView) {
-        // this is a new cell, it doesn't have an image view yet
-        imageView = [[UIImageView alloc] init];
-        imageView.contentMode = UIViewContentModeScaleToFill; // img stretches to fill UIImageView bounds
-        
-        imageView.frame = cell.contentView.bounds; // so image consumes cell entirety
-        
-        imageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth; // autoresizing can be none, or hwtrlb
-        
-        imageView.tag = imageViewTag;
-        [cell.contentView addSubview:imageView]; 
-    }
-    
-//    // once imageView gotten, set the image (based off cheap model)
-//    UIImage* image = self.images[indexPath.row];
-//    imageView.image = image;
-    Media* item = [self items][indexPath.row];
-    imageView.image = item.image;
+    // new custom cell takes care of all the styling and complexity
+    MediaTableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"mediaCell" forIndexPath:indexPath];
+    cell.mediaItem = [DataSource sharedInstance].mediaItems[indexPath.row];
     
     return cell;
 }
@@ -116,8 +125,13 @@
 //    return image.size.height; // worse as not proportional to screen
     //UIImage* image = self.images[indexPath.row]; // from cheap model
     Media* item = [self items][indexPath.row];
-    UIImage* image = item.image;
-    return (CGRectGetWidth(self.view.frame) / image.size.width) * image.size.height;
+//    UIImage* image = item.image; // for default table cell and new custom cell fixed hack
+//    // default table cell
+//    return (CGRectGetWidth(self.view.frame) / image.size.width) * image.size.height;
+//    // new custom cell (fixed hack not based on actual cell height)
+//    return 300 + (CGRectGetWidth(self.view.frame) / image.size.width) * image.size.height;
+    // new custom cell ("fake" layout table cell to find height)
+    return [MediaTableViewCell heightForMediaItem:item width:CGRectGetWidth(self.view.frame)];
 }
 
 
