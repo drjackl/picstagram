@@ -42,6 +42,9 @@
 //        }
 //    }
     
+    // register for KVO of mediaItems
+    [[DataSource sharedInstance] addObserver:self forKeyPath:@"mediaItems" options:0 context:nil];
+    
     // UITableViewCell represents a row and at least one cell type must be registered
 //    // default table cell
 //    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"imageCell"]; // UITableView*Cell* not UITableView
@@ -54,12 +57,60 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
+// best place to remove observers when no longer needed (else may cause crash)
+- (void) dealloc {
+    [[DataSource sharedInstance] removeObserver:self forKeyPath:@"mediaItems"];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
 #pragma mark - Miscellaneous
+
+// all KVO notifications sent to this one method
+- (void) observeValueForKeyPath:(NSString*)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void*)context {
+    // check 1. is update from registered DataSource object, 2. is mediaItems the updated key?
+    if (object == [DataSource sharedInstance] && [keyPath isEqualToString:@"mediaItems"]) {
+        // know mediaItems changed; find out what kind of change
+        NSKeyValueChange kindOfChange = [change[NSKeyValueChangeKindKey] unsignedIntegerValue];
+        
+        // entire object (_mediaItems) replaced, so reload entire table
+        if (kindOfChange == NSKeyValueChangeSetting) {
+            [self.tableView reloadData];
+        } else if (kindOfChange == NSKeyValueChangeInsertion ||
+                   kindOfChange == NSKeyValueChangeRemoval || // incremental changes
+                   kindOfChange == NSKeyValueChangeReplacement) {
+            // get indexes that changed
+            NSIndexSet* indexSetOfChanges = change[NSKeyValueChangeIndexesKey];
+            
+            // convert index set to array (table view requirement)
+            NSMutableArray* indexPathsThatChanged = [NSMutableArray array];
+            [indexSetOfChanges enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
+                NSIndexPath* newIndexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+                [indexPathsThatChanged addObject:newIndexPath];
+            }];
+            
+            // tells table view we're about to make changes
+            [self.tableView beginUpdates];
+            
+            // tell table view what changes are
+            if (kindOfChange == NSKeyValueChangeInsertion) {
+                [self.tableView insertRowsAtIndexPaths:indexPathsThatChanged withRowAnimation:UITableViewRowAnimationAutomatic];
+            } else if (kindOfChange == NSKeyValueChangeRemoval) {
+                [self.tableView deleteRowsAtIndexPaths:indexPathsThatChanged withRowAnimation:UITableViewRowAnimationAutomatic];
+            } else if (kindOfChange == NSKeyValueChangeReplacement) {
+                [self.tableView reloadRowsAtIndexPaths:indexPathsThatChanged withRowAnimation:UITableViewRowAnimationAutomatic];
+            }
+            
+            // tells table view we're done and to complete the animation
+            [self.tableView endUpdates];
+        }
+        
+    }
+    
+}
 
 // convenience method
 - (NSArray*) items {
@@ -149,8 +200,12 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) { // if user swipes left
         // Delete the row from the data source
         //[self.images removeObjectAtIndex:indexPath.row]; // cheap model
-        [DataSource deleteItemAtIndex:indexPath.row]; // real model
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade]; // by itself, this boilerplate throws runtime internal inconsistency exception
+        //[DataSource deleteItemAtIndex:indexPath.row]; // real model but not KVO
+        //[tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade]; // by itself, this boilerplate throws runtime internal inconsistency exception; use with cheap or non-KVO model
+        
+        // KVO deleting from data source
+        Media* item = [DataSource sharedInstance].mediaItems[indexPath.row];
+        [[DataSource sharedInstance] deleteMediaItem:item]; // calls KVO delete
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }   

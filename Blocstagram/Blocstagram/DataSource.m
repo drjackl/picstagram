@@ -11,7 +11,9 @@
 #import "Media.h"
 #import "Comment.h"
 
-@interface DataSource () // extension for ensuring mediaItems readonly to others
+@interface DataSource () { // extension for ensuring mediaItems readonly to others
+    NSMutableArray* _mediaItems; // first step for KVC (could've also done method -mediaItems)
+}
 
 @property (nonatomic) NSMutableArray* mediaItems; // redefined without readonly, mutable for delete
 
@@ -28,8 +30,15 @@
     return sharedInstance;
 }
 
-+ (void) deleteItemAtIndex:(NSInteger)row {
-    [[DataSource sharedInstance].mediaItems removeObjectAtIndex:row];
+//// initial deletion handling (no KVO)
+//+ (void) deleteItemAtIndex:(NSInteger)row {
+//    [[DataSource sharedInstance].mediaItems removeObjectAtIndex:row];
+//}
+
+// deleting item with KVO (else no objects like ImagesTableVC will get notification)
+- (void) deleteMediaItem:(Media*)item {
+    NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+    [mutableArrayWithKVO removeObject:item];
 }
 
 - (instancetype) init {
@@ -39,6 +48,40 @@
     }
     return self;
 }
+
+#pragma mark - Key/Value Observing
+
+// KVC: Accessor methods to allow observers to be notified when array changes
+
+- (NSUInteger) countOfMediaItems {
+    return self.mediaItems.count;
+}
+
+- (instancetype) objectInMediaItemsAtIndex:(NSUInteger)index {
+    return self.mediaItems[index];
+}
+
+- (NSArray*) mediaItemsAtIndexes:(NSIndexSet *)indexes {
+    return [self.mediaItems objectsAtIndexes:indexes];
+    
+}
+
+// KVC: Mutable accessor methods (note using _mediaItems cuz readonly?)
+
+- (void) insertObject:(Media*)object inMediaItemsAtIndex:(NSUInteger)index {
+    [_mediaItems insertObject:object atIndex:index];
+}
+
+- (void) removeObjectFromMediaItemsAtIndex:(NSUInteger)index {
+    [_mediaItems removeObjectAtIndex:index];
+}
+
+- (void) replaceObjectInMediaItemsAtIndex:(NSUInteger)index withObject:(id)object {
+    [_mediaItems replaceObjectAtIndex:index withObject:object];
+}
+
+
+#pragma mark - Placeholder Data
 
 - (void) addRandomData {
     NSMutableArray* randomMediaItems = [NSMutableArray array];
