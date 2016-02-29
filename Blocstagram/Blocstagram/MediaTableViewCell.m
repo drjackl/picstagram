@@ -45,12 +45,7 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
 // "fakes" layout event to get full height
 + (CGFloat) heightForMediaItem:(Media*)mediaItem width:(CGFloat)width {
 //    MediaTableViewCell* layoutCell = [[MediaTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"layoutCell"]; // create cell
-////    // for manual layout
-////    layoutCell.frame = CGRectMake(0, 0, width, CGFLOAT_MAX); // set width and tallest possible
-////    layoutCell.mediaItem = mediaItem; // set mediaItem
-////    
-////    [layoutCell layoutSubviews]; // auto-layout: make it adjust image view and labels
-//    
+//
 //    // auto-layout
 //    layoutCell.frame = CGRectMake(0, 0, width, CGRectGetHeight(layoutCell.frame));
 //    [layoutCell setNeedsLayout];
@@ -224,6 +219,8 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
     if (!self.mediaItem) { // verify mediaItem has been set
         return;
     }
+    
+    NSLog(@"img: %@", self.mediaItem.image);
     
     // manual layout
 //    // reuse proportion calculations in ImagesTableVC tableView:heightForRowIndex
