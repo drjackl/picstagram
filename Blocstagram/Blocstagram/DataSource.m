@@ -41,6 +41,10 @@
     [mutableArrayWithKVO removeObject:item];
 }
 
+//- (void) moveMediaItemToTop:(Media*)item {
+//    
+//}
+
 - (instancetype) init {
     self = [super init];
     if (self) {

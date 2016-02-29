@@ -15,7 +15,8 @@
 + (instancetype) sharedInstance;
 
 //+ (void) deleteItemAtIndex:(NSInteger)row; // initial deletion handling (not quite right)
-- (void) deleteMediaItem:(Media*)item;
+- (void) deleteMediaItem:(Media*)item; // KVO deleting
+//- (void) moveMediaItemToTop:(Media*)item;
 
 @property (nonatomic, readonly) NSMutableArray* mediaItems; // change to mutable for deletion
 
