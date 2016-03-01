@@ -13,6 +13,8 @@
 
 @property (nonatomic, weak) UIWebView* webView; // why weak?
 
+@property (nonatomic) UIButton* backButton;
+
 @end
 
 @implementation LoginViewController
@@ -35,6 +37,14 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
     [self.view addSubview:webView];
     self.webView = webView;
     
+    // add back and home button
+    UIButton* backButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.backButton = backButton;
+    [backButton setTitle:NSLocalizedString(@"Back", @"Navigate back") forState:UIControlStateNormal];
+    [backButton setEnabled:NO];
+    [backButton addTarget:self.webView action:@selector(goBack) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:backButton];
+    
     // set title for View
     self.title = NSLocalizedString(@"Login", @"Login");
     
@@ -52,6 +62,14 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
 
 - (void) viewWillLayoutSubviews {
     self.webView.frame = self.view.bounds; // takes up entire page?
+    
+    static const CGFloat buttonHeight = 50;
+    self.webView.frame = CGRectMake(0, 0, CGRectGetWidth(self.view.bounds),
+                                    CGRectGetHeight(self.view.bounds) - buttonHeight);
+    
+    // put back button at bottom
+    self.backButton.frame = CGRectMake(0, CGRectGetMaxY(self.webView.frame),// - buttonHeight,
+                                       CGRectGetWidth(self.webView.bounds), buttonHeight);
 }
 
 - (void)didReceiveMemoryWarning {
@@ -62,7 +80,7 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
 // override NSObject
 - (void) dealloc {
     // if don't clear, can have flickering effect from fast web page display and automatic cookie authentication
-    //[self clearInstagramCookies];
+    [self clearInstagramCookies];
     
     self.webView.delegate = nil; // UIWebView quirk that most objects don't require
 }
@@ -93,6 +111,23 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
     }
     
     return YES; // start loading if it's another URL?
+}
+
+// listen to update back or home button enablement
+- (void) webView:(UIWebView*)webView didFailLoadWithError:(NSError*)error {
+    [self updateButtonState];
+}
+
+- (void) webViewDidStartLoad:(UIWebView*)webView {
+    [self updateButtonState];
+}
+
+- (void) webViewDidFinishLoad:(UIWebView*)webView {
+    [self updateButtonState];
+}
+
+- (void) updateButtonState {
+    self.backButton.enabled = self.webView.canGoBack;
 }
 
 /*

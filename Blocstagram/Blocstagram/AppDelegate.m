@@ -23,7 +23,7 @@
     // need to manually create and assign a VC as app's root VC
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor purpleColor];
+    self.window.backgroundColor = [UIColor cyanColor];
     
 //    // app logic initial: root VC for showing a newsfeed (table)
 //    self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[ImagesTableViewController alloc] init]];//[[ViewController alloc] init]];

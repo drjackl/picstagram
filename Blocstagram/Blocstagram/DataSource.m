@@ -72,9 +72,59 @@
     // block runs after login VC posts *long name* notification
     [[NSNotificationCenter defaultCenter] addObserverForName:LoginViewControllerDidGetAccessTokenNotification object:nil queue:nil usingBlock:^(NSNotification* _Nonnull note) {
         self.accessToken = note.object;
+        
+        // got token, populate initial data (first pass, just a printout)
+        [self populateDataWithParameters:nil];
     }];
     
     // normally would unregister removeObserver: in dealloc
+}
+
+// create pics/media request and turn IG API respons to a dictionary
+- (void) populateDataWithParameters:(NSDictionary*)parameters {
+    
+    // only try get data if there's access token
+    if (self.accessToken) {
+        
+        // do network request in background so UI doesn't lockup
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            NSMutableString* urlString = [NSMutableString stringWithFormat:@"https://api.instagram.com/v1/users/self/media/recent/?access_token=%@", self.accessToken];
+            
+            // eg, if dictionary has count: 50, append &count=50 to URL
+            for (NSString* parameterName in parameters) {
+                [urlString appendFormat:@"&%@=%@", parameterName, parameters[parameterName]];
+            }
+            
+            NSURL* url = [NSURL URLWithString:urlString];
+            if (url) {
+                // request normally given to a UIWebView to load and display
+                NSURLRequest* request = [NSURLRequest requestWithURL:url];
+                
+                NSURLResponse* response;
+                NSError* webError;
+                
+                // if not displaying, use connection to handle connect and download
+                // NSData represents any type of data; can be convered to UIImage or NSString
+                NSData* responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&webError]; // seems to be deprecated
+                
+                if (responseData) {
+                    NSError* jsonError;
+                    NSDictionary* feedDictionary = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&jsonError];
+                    
+                    if (feedDictionary) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            // done networking, go back on the main thread
+                            [self parseDataFromFeedDictionary:feedDictionary fromRequestWithParameters:parameters];
+                        });
+                    }
+                }
+            }
+        });
+    }
+}
+
+- (void) parseDataFromFeedDictionary:(NSDictionary*)feedDictionary fromRequestWithParameters:(NSDictionary*)parameters {
+    NSLog(@"%@", feedDictionary);
 }
 
 // pull-to-refresh
