@@ -45,6 +45,10 @@
     // register for KVO of mediaItems
     [[DataSource sharedInstance] addObserver:self forKeyPath:@"mediaItems" options:0 context:nil];
     
+    // supports pull-to-refresh gesture
+    self.refreshControl = [[UIRefreshControl alloc] init]; // UITableVC property
+    [self.refreshControl addTarget:self action:@selector(refreshControlDidFire:) forControlEvents:UIControlEventValueChanged];
+    
     // UITableViewCell represents a row and at least one cell type must be registered
 //    // default table cell
 //    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"imageCell"]; // UITableView*Cell* not UITableView
@@ -68,6 +72,30 @@
 }
 
 #pragma mark - Miscellaneous
+
+- (void) refreshControlDidFire:(UIRefreshControl*)sender {
+    [[DataSource sharedInstance] requestNewItemsWithCompletionHandler:^(NSError*error) {
+        [sender endRefreshing];
+    }];
+}
+
+// checks if user scrolled to last phto
+- (void) infiniteScrollIfNecessary {
+    // get cells visible on screen and the last one shown
+    NSIndexPath* bottomIndexPath = [[self.tableView indexPathsForVisibleRows] lastObject];
+    
+    // if cell last image in _mediaItems array, call infiniteScroll method
+    if (bottomIndexPath && bottomIndexPath.row == [DataSource sharedInstance].mediaItems.count - 1) {
+        [[DataSource sharedInstance] requestOldItemsWithCompletionHandler:nil];
+    }
+}
+
+// scroll view can be scrolled any way, but table view is locked into vertical-only
+// scroll view delegate protocol that's invoked on every scroll direction
+- (void) scrollViewDidScroll:(UIScrollView*)scrollView {
+    [self infiniteScrollIfNecessary];
+}
+
 
 // all KVO notifications sent to this one method
 - (void) observeValueForKeyPath:(NSString*)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void*)context {
@@ -205,8 +233,8 @@
         
         // KVO deleting from data source
         Media* item = [DataSource sharedInstance].mediaItems[indexPath.row];
-        //[[DataSource sharedInstance] deleteMediaItem:item]; // calls KVO delete
-        [[DataSource sharedInstance] moveMediaItemToTop:item];
+        [[DataSource sharedInstance] deleteMediaItem:item]; // calls KVO delete
+        //[[DataSource sharedInstance] moveMediaItemToTop:item]; // KVO move2top
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }   

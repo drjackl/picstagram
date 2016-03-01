@@ -15,7 +15,12 @@
     NSMutableArray* _mediaItems; // first step for KVC (could've also done method -mediaItems)
 }
 
-@property (nonatomic) NSMutableArray* mediaItems; // redefined without readonly, mutable for delete
+@property (nonatomic) NSMutableArray* mediaItems; // redefined without readonly, mutable for delete (mutable/readwrite must've been an assignment/branch not a checkpt/master)
+
+// to ensure we don't fetch multiple times
+@property (nonatomic) BOOL isRefreshing; // defaults to assign, I assume
+
+@property (nonatomic) BOOL isLoadingOlderItems;
 
 @end
 
@@ -35,17 +40,18 @@
 //    [[DataSource sharedInstance].mediaItems removeObjectAtIndex:row];
 //}
 
-//// deleting item with KVO (else no objects like ImagesTableVC will get notification)
-//- (void) deleteMediaItem:(Media*)item {
-//    NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
-//    [mutableArrayWithKVO removeObject:item];
-//}
-
-- (void) moveMediaItemToTop:(Media*)item {
+// deleting item with KVO (else no objects like ImagesTableVC will get notification)
+- (void) deleteMediaItem:(Media*)item {
     NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
     [mutableArrayWithKVO removeObject:item];
-    [mutableArrayWithKVO insertObject:item atIndex:0];
 }
+
+//// moves media item to top with KVO (similar to delete with KVO)
+//- (void) moveMediaItemToTop:(Media*)item {
+//    NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+//    [mutableArrayWithKVO removeObject:item];
+//    [mutableArrayWithKVO insertObject:item atIndex:0];
+//}
 
 - (instancetype) init {
     self = [super init];
@@ -54,6 +60,48 @@
     }
     return self;
 }
+
+// pull-to-refresh
+- (void) requestNewItemsWithCompletionHandler:(NewItemCompletionBlock)completionHandler {
+    if (self.isRefreshing == NO) { // if request in progress, return immediately
+        self.isRefreshing = YES; // else lock and continue
+        
+        Media* media = [[Media alloc] init]; // create random media
+        media.user = [self randomUser];
+        media.image = [UIImage imageNamed:@"10.jpg"];
+        media.caption = [self randomSentence];
+        
+        NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"]; // append to top-most cell
+        [mutableArrayWithKVO insertObject:media atIndex:0];
+        
+        self.isRefreshing = NO;
+        
+        if (completionHandler) {
+            completionHandler(nil); // error not used now for fake local data
+        }
+    }
+}
+
+// infinite scroll
+- (void) requestOldItemsWithCompletionHandler:(NewItemCompletionBlock)completionHandler {
+    if (self.isLoadingOlderItems == NO) {
+        self.isLoadingOlderItems = YES;
+        Media* media = [[Media alloc] init];
+        media.user = [self randomUser];
+        media.image = [UIImage imageNamed:@"1.jpg"];
+        media.caption = [self randomSentence];
+        
+        NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+        [mutableArrayWithKVO addObject:media];
+        
+        self.isLoadingOlderItems = NO;
+        
+        if (completionHandler) {
+            completionHandler(nil);
+        }
+    }
+}
+
 
 #pragma mark - Key/Value Observing
 
