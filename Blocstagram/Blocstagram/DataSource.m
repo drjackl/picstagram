@@ -10,12 +10,14 @@
 #import "User.h"
 #import "Media.h"
 #import "Comment.h"
+#import "LoginViewController.h" // for IG login
 
 @interface DataSource () { // extension for ensuring mediaItems readonly to others
     NSMutableArray* _mediaItems; // first step for KVC (could've also done method -mediaItems)
 }
 
 @property (nonatomic) NSMutableArray* mediaItems; // redefined without readonly, mutable for delete (mutable/readwrite must've been an assignment/branch not a checkpt/master)
+@property (nonatomic) NSString* accessToken; // also redefined without readonly
 
 // to ensure we don't fetch multiple times
 @property (nonatomic) BOOL isRefreshing; // defaults to assign, I assume
@@ -33,6 +35,10 @@
         sharedInstance = [[self alloc] init];
     });
     return sharedInstance;
+}
+
++ (NSString*) instagramClientID {
+    return @"2d659bcd5033498e9b557d7d16242dca"; // from creating IG Client
 }
 
 //// initial deletion handling (no KVO)
@@ -56,9 +62,19 @@
 - (instancetype) init {
     self = [super init];
     if (self) {
-        [self addRandomData]; // adds placeholder data
+        //[self addRandomData]; // adds placeholder data
+        [self registerForAccessTokenNotification]; // register and respond to notification
     }
     return self;
+}
+
+- (void) registerForAccessTokenNotification {
+    // block runs after login VC posts *long name* notification
+    [[NSNotificationCenter defaultCenter] addObserverForName:LoginViewControllerDidGetAccessTokenNotification object:nil queue:nil usingBlock:^(NSNotification* _Nonnull note) {
+        self.accessToken = note.object;
+    }];
+    
+    // normally would unregister removeObserver: in dealloc
 }
 
 // pull-to-refresh
@@ -66,13 +82,16 @@
     if (self.isRefreshing == NO) { // if request in progress, return immediately
         self.isRefreshing = YES; // else lock and continue
         
-        Media* media = [[Media alloc] init]; // create random media
-        media.user = [self randomUser];
-        media.image = [UIImage imageNamed:@"10.jpg"];
-        media.caption = [self randomSentence];
-        
-        NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"]; // append to top-most cell
-        [mutableArrayWithKVO insertObject:media atIndex:0];
+//        // placeholder data
+//        Media* media = [[Media alloc] init]; // create random media
+//        media.user = [self randomUser];
+//        media.image = [UIImage imageNamed:@"10.jpg"];
+//        media.caption = [self randomSentence];
+//        
+//        NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"]; // append to top-most cell
+//        [mutableArrayWithKVO insertObject:media atIndex:0];
+
+        // TODO: Add images
         
         self.isRefreshing = NO;
         
@@ -86,13 +105,17 @@
 - (void) requestOldItemsWithCompletionHandler:(NewItemCompletionBlock)completionHandler {
     if (self.isLoadingOlderItems == NO) {
         self.isLoadingOlderItems = YES;
-        Media* media = [[Media alloc] init];
-        media.user = [self randomUser];
-        media.image = [UIImage imageNamed:@"1.jpg"];
-        media.caption = [self randomSentence];
         
-        NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
-        [mutableArrayWithKVO addObject:media];
+//        // placeholder data
+//        Media* media = [[Media alloc] init];
+//        media.user = [self randomUser];
+//        media.image = [UIImage imageNamed:@"1.jpg"];
+//        media.caption = [self randomSentence];
+//        
+//        NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+//        [mutableArrayWithKVO addObject:media];
+
+        // TODO: Add images
         
         self.isLoadingOlderItems = NO;
         

@@ -7,8 +7,10 @@
 //
 
 #import "AppDelegate.h"
-//#import "ViewController.h"
-#import "ImagesTableViewController.h"
+//#import "ViewController.h" // default root VC to set
+#import "ImagesTableViewController.h" // new root VC for a newsfeed (table)
+#import "LoginViewController.h"
+#import "DataSource.h"
 
 @interface AppDelegate ()
 
@@ -22,7 +24,19 @@
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor purpleColor];
-    self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[ImagesTableViewController alloc] init]];//[[ViewController alloc] init]];
+    
+//    // app logic initial: root VC for showing a newsfeed (table)
+//    self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[ImagesTableViewController alloc] init]];//[[ViewController alloc] init]];
+    
+    // app logic: at launch show login VC, register for *longname* notification, on notification post switch root VC
+    [DataSource sharedInstance]; // create data source to receive accessToken nots
+    
+    // show login VC
+    UINavigationController* navVC = [[UINavigationController alloc] init];
+    LoginViewController* loginVC = [[LoginViewController alloc] init];
+    [navVC setViewControllers:@[loginVC] animated:YES];
+    
+    self.window.rootViewController = navVC;
     
     [self.window makeKeyAndVisible];
     return YES;

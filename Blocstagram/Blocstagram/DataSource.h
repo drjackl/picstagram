@@ -17,7 +17,11 @@ typedef void (^NewItemCompletionBlock)(NSError* error);
 
 + (instancetype) sharedInstance;
 
-@property (nonatomic, readonly) NSMutableArray* mediaItems; // change to mutable for deletion
++ (NSString*) instagramClientID; // client ID stored in DataSource
+
+@property (nonatomic, readonly) NSMutableArray* mediaItems; // change to mutable for deletion (initial and/or KVO?)
+
+@property (nonatomic, readonly) NSString* accessToken; // store once gotten
 
 //+ (void) deleteItemAtIndex:(NSInteger)row; // initial deletion handling (not quite right)
 - (void) deleteMediaItem:(Media*)item; // KVO deleting
