@@ -11,7 +11,7 @@
 
 @class User;
 
-@interface Comment : NSObject
+@interface Comment : NSObject <NSCoding> // 1/2 of archiving (also NSKeyedArchiver)
 
 @property (nonatomic) NSString* idNumber;
 

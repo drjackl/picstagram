@@ -73,11 +73,50 @@
         if (!self.accessToken) {
             [self registerForAccessTokenNotification];
         } else {
-            [self populateDataWithParameters:nil completionHandler:nil];
+//            // before keychain: just populate data
+//            [self populateDataWithParameters:nil completionHandler:nil];
+            
+            // keychain: read saved data from file at launch (inverse of the write)
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                // try to find file at path and convert it to array
+                NSString* fullPath = [self pathForFilename:NSStringFromSelector(@selector(mediaItems))];
+                // read uses Unarchiver cf Archiver
+                NSArray* storedMediaItems = [NSKeyedUnarchiver unarchiveObjectWithFile:fullPath];
+                
+                // also different from write
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // if finds array of at least 1, display immediately
+                    if (storedMediaItems.count > 0) {
+                        NSMutableArray* mutableMediaItems = [storedMediaItems mutableCopy]; // stored copy is immutable
+                        
+                        [self willChangeValueForKey:@"mediaItems"];
+                        self.mediaItems = mutableMediaItems;
+                        [self didChangeValueForKey:@"mediaItems"];
+                        
+                        // notable difference: download on different queue may not have finished by time files are saved
+                        // so image may be nil when unarchived, so redownload any nil images
+                        for (Media* mediaItem in self.mediaItems) {
+                            [self downloadImageForMediaItem:mediaItem]; // will ignore items which already have attached images
+                        }
+                    } else {
+                        [self populateDataWithParameters:nil completionHandler:nil];
+                    }
+                });
+            });
         }
     }
     return self;
 }
+
+// creates absolute path
+- (NSString*) pathForFilename:(NSString*)filename {
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSString* documentsDirectory = [paths firstObject];
+    NSString* dataPath = [documentsDirectory stringByAppendingPathComponent:filename];
+    return dataPath;
+}
+
+#pragma mark - Login Access and Populate/Parse Data
 
 - (void) registerForAccessTokenNotification {
     // block runs after login VC posts *long name* notification
@@ -192,6 +231,32 @@
         self.mediaItems = tmpMediaItems;
         [self didChangeValueForKey:@"mediaItems"]; // inform KVO has been replaced, triggers reload of all data
     }
+    
+    // keychain: write to file when new data arrives
+    [self saveImages];
+}
+
+// write changes to disk (if there are items)
+- (void) saveImages {
+    if (self.mediaItems.count > 0) {
+        // just like internet connections, disk reads/writes can be slow so best to dispatch to a bkgd queue
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            // max 50 items so don't flood hard drive
+            NSUInteger numberOfItemsToSave = MIN(self.mediaItems.count, 50);
+            NSArray* mediaItemsToSave = [self.mediaItems subarrayWithRange:NSMakeRange(0, numberOfItemsToSave)];
+            
+            // convert array to NSData (not sure why filename is mediaItems getter)
+            NSString* fullPath = [self pathForFilename:NSStringFromSelector(@selector(mediaItems))];
+            NSData* mediaItemData = [NSKeyedArchiver archivedDataWithRootObject:mediaItemsToSave];
+            
+            NSError* dataError; // save to disk
+            BOOL wroteSuccessfully = [mediaItemData writeToFile:fullPath options:NSDataWritingAtomic | NSDataWritingFileProtectionCompleteUnlessOpen error:&dataError]; // always pass these 2 options unless compelling: Atomic ensures complete file saved else corrupt, Protection encrypts data
+            
+            if (!wroteSuccessfully) {
+                NSLog(@"Couldn't write file: %@", dataError);
+            }
+        });
+    }
 }
 
 - (void) downloadImageForMediaItem:(Media*)mediaItem {
@@ -213,6 +278,9 @@
                         NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
                         NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
                         [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem]; // triggers KVO notification to reload row
+                        
+                        // keychain: save when download completes
+                        [self saveImages];
                     });
                 }
             } else { // no imageData

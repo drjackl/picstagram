@@ -11,7 +11,7 @@
 
 @class User; // forward declare as generally bad to #import custom classes in .h
 
-@interface Media : NSObject
+@interface Media : NSObject <NSCoding> // 1/2 of archiving (also NSKeyedArchiver)
 
 @property (nonatomic) NSString* idNumber;
 @property (nonatomic) User* user;

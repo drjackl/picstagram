@@ -9,7 +9,7 @@
 //#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h> // apparently includes NSObject or all of Foundation?
 
-@interface User : NSObject
+@interface User : NSObject <NSCoding> // 1/2 of archiving (also NSKeyedArchiver)
 
 @property (nonatomic) NSString* idNumber;
 @property (nonatomic) NSString* userName;
