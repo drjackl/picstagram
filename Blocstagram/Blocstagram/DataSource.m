@@ -11,6 +11,7 @@
 #import "Media.h"
 #import "Comment.h"
 #import "LoginViewController.h" // for IG login
+#import <UICKeyChainStore.h> // brackets for external files, quotes for local ones
 
 @interface DataSource () { // extension for ensuring mediaItems readonly to others
     NSMutableArray* _mediaItems; // first step for KVC (could've also done method -mediaItems)
@@ -66,6 +67,14 @@
     if (self) {
         //[self addRandomData]; // adds placeholder data
         [self registerForAccessTokenNotification]; // register and respond to notification
+        
+        // keychain: can now short circuit registering to populating if exists
+        self.accessToken = [UICKeyChainStore stringForKey:@"access token"];
+        if (!self.accessToken) {
+            [self registerForAccessTokenNotification];
+        } else {
+            [self populateDataWithParameters:nil completionHandler:nil];
+        }
     }
     return self;
 }
@@ -75,6 +84,9 @@
     [[NSNotificationCenter defaultCenter] addObserverForName:LoginViewControllerDidGetAccessTokenNotification object:nil queue:nil usingBlock:^(NSNotification* _Nonnull note) {
         self.accessToken = note.object;
         
+        // keychain: save token (why is key not accessToken?)
+        [UICKeyChainStore setString:self.accessToken forKey:@"access token"];
+        
         // got token, populate initial data (first pass, just a printout)
         //[self populateDataWithParameters:nil]; // has handler in parsing JSON now
         [self populateDataWithParameters:nil completionHandler:nil];
@@ -83,7 +95,7 @@
     // normally would unregister removeObserver: in dealloc
 }
 
-// create pics/media request and turn IG API respons to a dictionary
+// create pics/media request and turn IG API response to a dictionary
 // update to use completion handler for pulling real pics/media
 //- (void) populateDataWithParameters:(NSDictionary*)parameters {
 - (void) populateDataWithParameters:(NSDictionary*)parameters completionHandler:(NewItemCompletionBlock)completionHandler {
@@ -264,7 +276,7 @@
 //        NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
 //        [mutableArrayWithKVO addObject:media];
 
-        // TODO: Add images
+        // past TODO: Add images
         NSString* maxID = [[self.mediaItems lastObject] idNumber];
         NSDictionary* parameters;
         if (maxID) {

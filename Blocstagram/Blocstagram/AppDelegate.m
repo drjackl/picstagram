@@ -31,16 +31,31 @@
     // app logic: at launch show login VC, register for *longname* notification, on notification post switch root VC
     [DataSource sharedInstance]; // create data source to receive accessToken nots
     
-    // show login VC
-    UINavigationController* navVC = [[UINavigationController alloc] init];
-    LoginViewController* loginVC = [[LoginViewController alloc] init];
-    [navVC setViewControllers:@[loginVC] animated:YES];
+//    // show login VC (always show if no keychain)
+//    UINavigationController* navVC = [[UINavigationController alloc] init];
+//    LoginViewController* loginVC = [[LoginViewController alloc] init];
+//    [navVC setViewControllers:@[loginVC] animated:YES];
+//    
+//    // switch to images table VC once access token obtained (forgot this!)
+//    [[NSNotificationCenter defaultCenter] addObserverForName:LoginViewControllerDidGetAccessTokenNotification object:nil queue:nil usingBlock:^(NSNotification* _Nonnull note) {
+//        ImagesTableViewController* imagesVC = [[ImagesTableViewController alloc] init];
+//        [navVC setViewControllers:@[imagesVC] animated:YES];
+//    }];
     
-    // switch to images table VC once access token obtained (forgot this!)
-    [[NSNotificationCenter defaultCenter] addObserverForName:LoginViewControllerDidGetAccessTokenNotification object:nil queue:nil usingBlock:^(NSNotification* _Nonnull note) {
+    // keychain: only show login VC if no access token, else skip to feed/table
+    UINavigationController* navVC = [[UINavigationController alloc] init];
+    if (![DataSource sharedInstance].accessToken) {
+        LoginViewController* loginVC = [[LoginViewController alloc] init];
+        [navVC setViewControllers:@[loginVC] animated:YES];
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:LoginViewControllerDidGetAccessTokenNotification object:nil queue:nil usingBlock:^(NSNotification* _Nonnull note) {
+            ImagesTableViewController* imagesVC = [[ImagesTableViewController alloc] init];
+            [navVC setViewControllers:@[imagesVC] animated:YES];
+        }];
+    } else { // set the ImagesTableVC
         ImagesTableViewController* imagesVC = [[ImagesTableViewController alloc] init];
         [navVC setViewControllers:@[imagesVC] animated:YES];
-    }];
+    }
     
     self.window.rootViewController = navVC;
     
