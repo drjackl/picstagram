@@ -162,7 +162,7 @@
 
 // most important method: content, image and accessory views all customizable here
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-//    // default table cell
+//    // initial table cell
 //    // take ID string and compare it with roster of registered cells (from viewDidLoad)
 //    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"imageCell" forIndexPath:indexPath]; // dequeue returns either brand new or used cell
 //    
@@ -189,7 +189,7 @@
 ////    imageView.image = image;
 //    Media* item = [self items][indexPath.row];
 //    imageView.image = item.image;
-//    // end default table cell
+//    // end initial table cell
     
     // new custom cell takes care of all the styling and complexity
     MediaTableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"mediaCell" forIndexPath:indexPath];
@@ -240,6 +240,16 @@
     }   
 }
 
+// overriding avoids table view calculating every cell height, just when scrolled in
+// auto-layout computationally expensive; else UI freezes a bit in infinite scroll
+- (CGFloat) tableView:(UITableView*)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath*)indexPath {
+    Media* item = [DataSource sharedInstance].mediaItems[indexPath.row];
+    if (item.image) {
+        return 350;
+    } else {
+        return 150;
+    }
+}
 
 /*
 // Override to support rearranging the table view.

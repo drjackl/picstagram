@@ -30,6 +30,8 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    [self clearInstagramCookies]; // clear cookies in case
+    
     // webView: 1. create 2. set self as delegate 3. add to subview 4. set property 5. set frame (in viewWillLayoutSubviews)
     UIWebView* webView = [[UIWebView alloc] init];
     webView.delegate = self;
@@ -107,10 +109,10 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
         // a new, less formal way of communication
         [[NSNotificationCenter defaultCenter] postNotificationName:LoginViewControllerDidGetAccessTokenNotification object:accessToken];
         
-        return NO; // don't start loading if got access token?
+        return NO; // stop loading once token gotten
     }
     
-    return YES; // start loading if it's another URL?
+    return YES; // else load page
 }
 
 // listen to update back or home button enablement

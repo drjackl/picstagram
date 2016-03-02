@@ -36,6 +36,12 @@
     LoginViewController* loginVC = [[LoginViewController alloc] init];
     [navVC setViewControllers:@[loginVC] animated:YES];
     
+    // switch to images table VC once access token obtained (forgot this!)
+    [[NSNotificationCenter defaultCenter] addObserverForName:LoginViewControllerDidGetAccessTokenNotification object:nil queue:nil usingBlock:^(NSNotification* _Nonnull note) {
+        ImagesTableViewController* imagesVC = [[ImagesTableViewController alloc] init];
+        [navVC setViewControllers:@[imagesVC] animated:YES];
+    }];
+    
     self.window.rootViewController = navVC;
     
     [self.window makeKeyAndVisible];

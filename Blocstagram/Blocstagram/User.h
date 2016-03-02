@@ -17,4 +17,7 @@
 @property (nonatomic) NSURL* profilePictureURL;
 @property (nonatomic) UIImage* profilePicture; // requires UIKit
 
+// for JSON parsing
+- (instancetype) initWithDictionary:(NSDictionary*)userDictionary;
+
 @end

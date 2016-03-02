@@ -24,6 +24,8 @@
 
 @property (nonatomic) BOOL isLoadingOlderItems;
 
+@property (nonatomic) BOOL thereAreNoMoreOlderMessages; // infinite scroll, for real data
+
 @end
 
 @implementation DataSource
@@ -74,14 +76,17 @@
         self.accessToken = note.object;
         
         // got token, populate initial data (first pass, just a printout)
-        [self populateDataWithParameters:nil];
+        //[self populateDataWithParameters:nil]; // has handler in parsing JSON now
+        [self populateDataWithParameters:nil completionHandler:nil];
     }];
     
     // normally would unregister removeObserver: in dealloc
 }
 
 // create pics/media request and turn IG API respons to a dictionary
-- (void) populateDataWithParameters:(NSDictionary*)parameters {
+// update to use completion handler for pulling real pics/media
+//- (void) populateDataWithParameters:(NSDictionary*)parameters {
+- (void) populateDataWithParameters:(NSDictionary*)parameters completionHandler:(NewItemCompletionBlock)completionHandler {
     
     // only try get data if there's access token
     if (self.accessToken) {
@@ -115,8 +120,20 @@
                         dispatch_async(dispatch_get_main_queue(), ^{
                             // done networking, go back on the main thread
                             [self parseDataFromFeedDictionary:feedDictionary fromRequestWithParameters:parameters];
+                            
+                            if (completionHandler) { // if request successful, no error
+                                completionHandler(nil);
+                            }
+                        });
+                    } else if (completionHandler) { // if json error pass to handler
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            completionHandler(jsonError);
                         });
                     }
+                } else if (completionHandler) { // if weberror, pass that to handler
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        completionHandler(webError);
+                    });
                 }
             }
         });
@@ -124,11 +141,79 @@
 }
 
 - (void) parseDataFromFeedDictionary:(NSDictionary*)feedDictionary fromRequestWithParameters:(NSDictionary*)parameters {
-    NSLog(@"%@", feedDictionary);
+    NSLog(@"%@", feedDictionary); // first time login and getting data
+    
+    // now actually parse the IG feed
+    NSArray* mediaArray = feedDictionary[@"data"];
+    
+    NSMutableArray* tmpMediaItems = [NSMutableArray array];
+    for (NSDictionary* mediaDictionary in mediaArray) {
+        Media* mediaItem = [[Media alloc] initWithDictionary:mediaDictionary];
+        
+        if (mediaItem) { // always need to check if parsed successfully
+            [tmpMediaItems addObject:mediaItem];
+            
+            [self downloadImageForMediaItem:mediaItem]; // download image, though this is inefficient as it downloads 100 images simultaneously; better to start downloading as user scrolls through feed
+        }
+    }
+    
+//    // this code doesn't use parameters dictionary, so need to update
+//    [self willChangeValueForKey:@"mediaItems"]; // inform KVO about to be replaced
+//    self.mediaItems = tmpMediaItems;
+//    [self didChangeValueForKey:@"mediaItems"]; // inform KVO has been replaced, triggers reload of all data
+    
+    NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+    
+    if (parameters[@"min_id"]) { // this was a pull-to-refresh request
+        NSRange rangeOfIndex = NSMakeRange(0, tmpMediaItems.count);
+        NSIndexSet* indexSetOfNewObjects = [NSIndexSet indexSetWithIndexesInRange:rangeOfIndex];
+        
+        [mutableArrayWithKVO insertObjects:tmpMediaItems atIndexes:indexSetOfNewObjects];
+    } else if (parameters[@"max_id"]) { // this was an infinite scroll request
+        if (tmpMediaItems.count == 0) { // disable scroll since no more older posts
+            self.thereAreNoMoreOlderMessages = YES;
+        } else {
+            [mutableArrayWithKVO addObjectsFromArray:tmpMediaItems];
+        }
+    } else {
+        [self willChangeValueForKey:@"mediaItems"]; // inform KVO about to be replaced
+        self.mediaItems = tmpMediaItems;
+        [self didChangeValueForKey:@"mediaItems"]; // inform KVO has been replaced, triggers reload of all data
+    }
+}
+
+- (void) downloadImageForMediaItem:(Media*)mediaItem {
+    if (mediaItem.mediaURL && !mediaItem.image) { // if there's a URL, but no image
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSURLRequest* request = [NSURLRequest requestWithURL:mediaItem.mediaURL];
+            
+            NSURLResponse* response;
+            NSError* error;
+            NSData* imageData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+            
+            if (imageData) {
+                UIImage* image = [UIImage imageWithData:imageData];
+                
+                if (image) {
+                    mediaItem.image = image;
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+                        NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
+                        [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem]; // triggers KVO notification to reload row
+                    });
+                }
+            } else { // no imageData
+                NSLog(@"Error downloading image: %@", error);
+            }
+        });
+    }
 }
 
 // pull-to-refresh
 - (void) requestNewItemsWithCompletionHandler:(NewItemCompletionBlock)completionHandler {
+    self.thereAreNoMoreOlderMessages = NO; // reset
+    
     if (self.isRefreshing == NO) { // if request in progress, return immediately
         self.isRefreshing = YES; // else lock and continue
         
@@ -141,19 +226,33 @@
 //        NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"]; // append to top-most cell
 //        [mutableArrayWithKVO insertObject:media atIndex:0];
 
-        // TODO: Add images
-        
-        self.isRefreshing = NO;
-        
-        if (completionHandler) {
-            completionHandler(nil); // error not used now for fake local data
+        // past todo: Add images
+        NSString* minID = [[self.mediaItems firstObject] idNumber];
+        NSDictionary* parameters;
+        if (minID) {
+            parameters = @{@"min_id": minID};
         }
+        [self populateDataWithParameters:parameters completionHandler:^(NSError *error) {
+            self.isRefreshing = NO;
+            
+            if (completionHandler) {
+                completionHandler(error);
+            }
+        }];
+        
+//        // when images were created, could simply just set isRefreshing to NO
+//        self.isRefreshing = NO;
+//        
+//        if (completionHandler) {
+//            completionHandler(nil); // error not used now for fake local data
+//        }
     }
 }
 
 // infinite scroll
 - (void) requestOldItemsWithCompletionHandler:(NewItemCompletionBlock)completionHandler {
-    if (self.isLoadingOlderItems == NO) {
+    //if (self.isLoadingOlderItems == NO) { // before, didn't care about pointless requests
+    if (self.isLoadingOlderItems && self.thereAreNoMoreOlderMessages) {
         self.isLoadingOlderItems = YES;
         
 //        // placeholder data
@@ -166,12 +265,25 @@
 //        [mutableArrayWithKVO addObject:media];
 
         // TODO: Add images
-        
-        self.isLoadingOlderItems = NO;
-        
-        if (completionHandler) {
-            completionHandler(nil);
+        NSString* maxID = [[self.mediaItems lastObject] idNumber];
+        NSDictionary* parameters;
+        if (maxID) {
+            parameters = @{@"max_id": maxID};
         }
+        [self populateDataWithParameters:parameters completionHandler:^(NSError*error) {
+            self.isLoadingOlderItems = NO;
+            
+            if (completionHandler) {
+                completionHandler(nil);
+            }
+        }];
+        
+//        // before, just stopped once created placeholder data
+//        self.isLoadingOlderItems = NO;
+//        
+//        if (completionHandler) {
+//            completionHandler(nil);
+//        }
     }
 }
 

@@ -20,4 +20,6 @@
 @property (nonatomic) NSString* caption;
 @property (nonatomic) NSArray* comments;
 
+- (instancetype) initWithDictionary:(NSDictionary*)mediaDictionary;
+
 @end

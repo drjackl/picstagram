@@ -185,10 +185,19 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
     CGSize commentLabelSize = [self.commentLabel sizeThatFits:maxSize];
     
     // overwrite previous 100 value (will need to be updated if used for delete)
-    self.usernameAndCaptionLabelHeightConstraint.constant = usernameLabelSize.height + 20;
-    self.commentLabelHeightConstraint.constant = commentLabelSize.height + 20;
-    self.imageHeightConstraint.constant = self.mediaItem.image.size.height * (CGRectGetWidth(self.contentView.bounds) / self.mediaItem.image.size.width); // comment out to constrain height to 100
+    //self.usernameAndCaptionLabelHeightConstraint.constant = usernameLabelSize.height + 20;
+    //self.commentLabelHeightConstraint.constant = commentLabelSize.height + 20;
+    //self.imageHeightConstraint.constant = self.mediaItem.image.size.height * (CGRectGetWidth(self.contentView.bounds) / self.mediaItem.image.size.width); // comment out to constrain height to 100
 
+    // when you delete items, need to check if the heights are zero, especially the last one cuz may divide by zero
+    self.usernameAndCaptionLabelHeightConstraint.constant = usernameLabelSize.height == 0 ? 0 : usernameLabelSize.height + 20;
+    self.commentLabelHeightConstraint.constant = commentLabelSize.height == 0 ? 0 : commentLabelSize.height + 20;
+    if (self.mediaItem.image.size.width > 0 &&
+        CGRectGetWidth(self.contentView.bounds) > 0) {
+        self.imageHeightConstraint.constant = self.mediaItem.image.size.height * (CGRectGetWidth(self.contentView.bounds) / self.mediaItem.image.size.width);
+    } else {
+        self.imageHeightConstraint.constant = 0;
+    }
     
     // hide line between cells
     self.separatorInset = UIEdgeInsetsMake(0, // top
@@ -198,8 +207,15 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
     
 }
 
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
-    [super setSelected:selected animated:animated];
+// rids ugly gray background
+- (void) setHighlighted:(BOOL)highlighted animated:(BOOL)animated {
+    [super setHighlighted:NO animated:animated]; // disables standard gray selection
+}
+
+// rids ugly gray background
+- (void) setSelected:(BOOL)selected animated:(BOOL)animated {
+    //[super setSelected:selected animated:animated]; // xcode boilerplate
+    [super setSelected:NO animated:animated]; // disables background gray selection
 
     // Configure the view for the selected state
 }
