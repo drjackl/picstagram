@@ -22,4 +22,6 @@
 
 - (instancetype) initWithDictionary:(NSDictionary*)mediaDictionary;
 
+- (void) shareGivenViewController:(UIViewController*)viewController;
+
 @end

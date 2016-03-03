@@ -99,8 +99,8 @@
                             [self downloadImageForMediaItem:mediaItem]; // will ignore items which already have attached images
                         }
                         
-                        // on app launch, if cached pics found, try to fetch newer content (prevents pull-to-refresh for each launch)
-                        [self requestNewItemsWithCompletionHandler:nil]; // so far, handler for end refresh
+//                        // on app launch, if cached pics found, try to fetch newer content (prevents pull-to-refresh for each launch)
+//                        [self requestNewItemsWithCompletionHandler:nil]; // so far, handler for end refresh
                     } else {
                         [self populateDataWithParameters:nil completionHandler:nil];
                     }

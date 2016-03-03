@@ -155,20 +155,22 @@
 }
 
 - (void) cell:(MediaTableViewCell*)cell didLongPressImageView:(UIImageView*)imageView {
-    NSMutableArray* itemsToShare = [NSMutableArray array];
+//    NSMutableArray* itemsToShare = [NSMutableArray array];
+//    
+//    if (cell.mediaItem.caption.length > 0) {
+//        [itemsToShare addObject:cell.mediaItem.caption];
+//    }
+//    
+//    if (cell.mediaItem.image) {
+//        [itemsToShare addObject:cell.mediaItem.image];
+//    }
+//    
+//    if (itemsToShare.count > 0) {
+//        UIActivityViewController* activityVC = [[UIActivityViewController alloc] initWithActivityItems:itemsToShare applicationActivities:nil];
+//        [self presentViewController:activityVC animated:YES completion:nil];
+//    }
     
-    if (cell.mediaItem.caption.length > 0) {
-        [itemsToShare addObject:cell.mediaItem.caption];
-    }
-    
-    if (cell.mediaItem.image) {
-        [itemsToShare addObject:cell.mediaItem.image];
-    }
-    
-    if (itemsToShare.count > 0) {
-        UIActivityViewController* activityVC = [[UIActivityViewController alloc] initWithActivityItems:itemsToShare applicationActivities:nil];
-        [self presentViewController:activityVC animated:YES completion:nil];
-    }
+    [cell.mediaItem shareGivenViewController:self];
 }
 
 #pragma mark - Table view data source

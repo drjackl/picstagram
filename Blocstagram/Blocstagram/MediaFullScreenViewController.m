@@ -17,6 +17,8 @@
 @property (nonatomic) UITapGestureRecognizer* tap;
 @property (nonatomic) UITapGestureRecognizer* doubleTap;
 
+@property (nonatomic) UIButton* shareButton;
+
 @end
 
 @implementation MediaFullScreenViewController
@@ -51,6 +53,18 @@
     // scroll view's contentSize is new, just pass in its size
     self.scrollView.contentSize = self.media.image.size;
     
+    
+    // add share button
+    UIButton* shareButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [shareButton setTitle:NSLocalizedString(@"Share", @"Share this media item") forState:UIControlStateNormal];
+    [shareButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [shareButton setBackgroundColor:[UIColor colorWithWhite:1.0 alpha:0.5]];
+    shareButton.enabled = YES;
+    [shareButton addTarget:self action:@selector(shareThisItem) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:shareButton];
+    self.shareButton = shareButton;
+    
+    
     // initialize extra tap features
     self.tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapFired:)];
     
@@ -68,8 +82,16 @@
 - (void) viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     
+    // share button: account for putting it on top right
+    //CGFloat buttonHeight = CGRectGetHeight(self.shareButton.bounds); // can't do this cuz height is not given yet
+    CGFloat buttonHeight = 30;
+    
+    
     // sets scroll view to take up all of view's space
     self.scrollView.frame = self.view.bounds;
+    
+//    // calculating to allow for button on top
+//    self.scrollView.frame = CGRectMake(0, buttonHeight, CGRectGetWidth(self.view.bounds), CGRectGetHeight(self.view.bounds)-buttonHeight);
     
     // 2 ratios: scroll view w : image w and scroll view h : image h
     CGSize scrollViewFrameSize = self.scrollView.frame.size;
@@ -82,6 +104,13 @@
     
     self.scrollView.minimumZoomScale = minScale;
     self.scrollView.maximumZoomScale = 1;
+    
+    
+    // share button
+    CGFloat viewMaxX = CGRectGetMaxX(self.view.bounds);
+    CGFloat buttonWidth = 70; // CGRectGetWidth(self.shareButton.bounds); // can't do this as there's no button size yet
+    CGFloat topMargin = 20;
+    self.shareButton.frame = CGRectMake(viewMaxX-buttonWidth, topMargin, buttonWidth, buttonHeight);
 }
 
 // ensures image starts out centered
@@ -94,6 +123,10 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void) shareThisItem {
+    [self.media shareGivenViewController:self];
 }
 
 // if zoomed out all the way, will center image in middle with equal margin space
