@@ -12,8 +12,9 @@
 #import "Media.h"
 #import "Comment.h"
 #import "MediaTableViewCell.h" // our new custom table cell
+#import "MediaFullScreenViewController.h" // for tap image fullscreens it
 
-@interface ImagesTableViewController ()
+@interface ImagesTableViewController () <MediaTableViewCellDelegate> // for fullscreen
 
 //@property (nonatomic) NSMutableArray* images; // default strong, cheap model
 
@@ -145,6 +146,31 @@
     return [DataSource sharedInstance].mediaItems;
 }
 
+#pragma mark - MediaTableViewCellDelegate
+
+- (void) cell:(MediaTableViewCell*)cell didTapImageView:(UIImageView*)imageView {
+    MediaFullScreenViewController* fullScreenVC = [[MediaFullScreenViewController alloc] initWithMedia:cell.mediaItem];
+    
+    [self presentViewController:fullScreenVC animated:YES completion:nil];
+}
+
+- (void) cell:(MediaTableViewCell*)cell didLongPressImageView:(UIImageView*)imageView {
+    NSMutableArray* itemsToShare = [NSMutableArray array];
+    
+    if (cell.mediaItem.caption.length > 0) {
+        [itemsToShare addObject:cell.mediaItem.caption];
+    }
+    
+    if (cell.mediaItem.image) {
+        [itemsToShare addObject:cell.mediaItem.image];
+    }
+    
+    if (itemsToShare.count > 0) {
+        UIActivityViewController* activityVC = [[UIActivityViewController alloc] initWithActivityItems:itemsToShare applicationActivities:nil];
+        [self presentViewController:activityVC animated:YES completion:nil];
+    }
+}
+
 #pragma mark - Table view data source
 
 // can delete since the default returns 1, which we want
@@ -193,6 +219,9 @@
     
     // new custom cell takes care of all the styling and complexity
     MediaTableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"mediaCell" forIndexPath:indexPath];
+    
+    cell.delegate = self; // fullscreen: set delegate whenever create/dequeue a cell
+    
     cell.mediaItem = [DataSource sharedInstance].mediaItems[indexPath.row];
     
     return cell;

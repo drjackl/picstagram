@@ -11,7 +11,7 @@
 #import "Media.h"
 #import "Comment.h"
 
-@interface MediaTableViewCell ()
+@interface MediaTableViewCell () <UIGestureRecognizerDelegate> // to recognize tap
 
 @property (nonatomic) UIImageView* mediaImageView;
 @property (nonatomic) UILabel* usernameAndCaptionLabel;
@@ -21,6 +21,10 @@
 @property (nonatomic) NSLayoutConstraint* imageHeightConstraint;
 @property (nonatomic) NSLayoutConstraint* usernameAndCaptionLabelHeightConstraint;
 @property (nonatomic) NSLayoutConstraint* commentLabelHeightConstraint;
+
+// for tap image fullscreens it
+@property (nonatomic) UITapGestureRecognizer* tapGestureRecognizer;
+@property (nonatomic) UILongPressGestureRecognizer* longPressGestureRecognizer;
 
 @end
 
@@ -84,6 +88,19 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
         // initialization code
         self.mediaImageView = [[UIImageView alloc] init];
         
+        // extra setup for adding tap image fullscreens it
+        self.mediaImageView.userInteractionEnabled = YES;
+        
+        self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapFired:)];
+        self.tapGestureRecognizer.delegate = self;
+        [self.mediaImageView addGestureRecognizer:self.tapGestureRecognizer];
+        
+        self.longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressFired:)]; // for sharing
+        self.longPressGestureRecognizer.delegate = self;
+        [self.mediaImageView addGestureRecognizer:self.longPressGestureRecognizer];
+        
+        
+        // initialization code continued
         self.usernameAndCaptionLabel = [[UILabel alloc] init];
         self.usernameAndCaptionLabel.numberOfLines = 0;
         self.usernameAndCaptionLabel.backgroundColor = usernameLabelGray;
@@ -207,6 +224,29 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
     
 }
 
+#pragma mark - Image View
+
+// target method of tap gesture
+- (void) tapFired:(UITapGestureRecognizer*)sender { // interesting sender not used
+    [self.delegate cell:self didTapImageView:self.mediaImageView];
+}
+
+- (void) longPressFired:(UILongPressGestureRecognizer*)sender {
+    // if we don't check, this delegate method is called twice
+    if (sender.state == UIGestureRecognizerStateBegan) { // Recognized is finger lift
+        [self.delegate cell:self didLongPressImageView:self.mediaImageView];
+    }
+}
+
+#pragma mark - UIGesturedRecognizerDelegate
+
+// make sure zoom in doesn't happen while trying to delete (zoom only in non-edit mode)
+- (BOOL) gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer shouldReceiveTouch:(UITouch*)touch {
+    return self.isEditing == NO;
+}
+
+#pragma mark - UITableViewCell methods (cosmetic)
+
 // rids ugly gray background
 - (void) setHighlighted:(BOOL)highlighted animated:(BOOL)animated {
     [super setHighlighted:NO animated:animated]; // disables standard gray selection
@@ -219,6 +259,8 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
 
     // Configure the view for the selected state
 }
+
+#pragma mark - Overriden setter method
 
 // override auto-generated property setter
 // update image and text labels whenever new media item is set
