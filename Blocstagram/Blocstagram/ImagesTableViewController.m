@@ -175,7 +175,7 @@
 
 - (void) cell:(MediaTableViewCell*)cell didTwoFingerTapImageView:(UIImageView*)imageView {
     NSLog(@"Two finger tap heard");
-    [[DataSource sharedInstance] retryDownloadingMediaitem:cell.mediaItem];
+    [[DataSource sharedInstance] retryDownloadingMediaItem:cell.mediaItem];
 }
 
 #pragma mark - Table view data source
@@ -284,6 +284,15 @@
         return 350;
     } else {
         return 150;
+    }
+}
+
+// for redownloading images: instead of downloading images as we get media items,
+// check if need images right before display
+- (void) tableView:(UITableView*)tableView willDisplayCell:(UITableViewCell*)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
+    Media* media = [DataSource sharedInstance].mediaItems[indexPath.row]; // weird couldn't autocomplete .row
+    if (media.downloadState == MediaDownloadStateNeedsImage) {
+        [[DataSource sharedInstance] downloadImageForMediaItem:media];
     }
 }
 

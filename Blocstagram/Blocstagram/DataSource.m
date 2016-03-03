@@ -65,7 +65,8 @@
 //    [mutableArrayWithKVO insertObject:item atIndex:0];
 //}
 
-- (void) retryDownloadingMediaitem:(Media*)item {
+// public method for downloading an item
+- (void) retryDownloadingMediaItem:(Media*)item {
     [self downloadImageForMediaItem:item];
 }
 
@@ -105,11 +106,12 @@
                         self.mediaItems = mutableMediaItems;
                         [self didChangeValueForKey:@"mediaItems"];
                         
-                        // notable difference: download on different queue may not have finished by time files are saved
-                        // so image may be nil when unarchived, so redownload any nil images
-                        for (Media* mediaItem in self.mediaItems) {
-                            [self downloadImageForMediaItem:mediaItem]; // will ignore items which already have attached images
-                        }
+//                        // finally, comment out to deal with redownloading images
+//                        // notable difference: download on different queue may not have finished by time files are saved
+//                        // so image may be nil when unarchived, so redownload any nil images
+//                        for (Media* mediaItem in self.mediaItems) {
+//                            [self downloadImageForMediaItem:mediaItem]; // will ignore items which already have attached images
+//                        }
                         
 //                        // on app launch, if cached pics found, try to fetch newer content (prevents pull-to-refresh for each launch)
 //                        [self requestNewItemsWithCompletionHandler:nil]; // so far, handler for end refresh
@@ -256,6 +258,7 @@
         if (mediaItem) { // always need to check if parsed successfully
             [tmpMediaItems addObject:mediaItem];
             
+            // comment out to deal with redownloading images
             [self downloadImageForMediaItem:mediaItem]; // download image, though this is inefficient as it downloads 100 images simultaneously; better to start downloading as user scrolls through feed
         }
     }
@@ -313,18 +316,50 @@
 
 - (void) downloadImageForMediaItem:(Media*)mediaItem {
     if (mediaItem.mediaURL && !mediaItem.image) { // if there's a URL, but no image
+        // retry downloading:
+        mediaItem.downloadState = MediaDownloadStateDownloadInProgress;
+        
         // afnetworking: try to download images
         [self.instagramOperationManager GET:mediaItem.mediaURL.absoluteString
                                  parameters:nil
                                     success:^(AFHTTPRequestOperation* _Nonnull operation, id  _Nonnull responseObject) {
                                         if ([responseObject isKindOfClass:[UIImage class]]) {
                                             mediaItem.image = responseObject;
+                                            
+                                            // retry downloading:
+                                            mediaItem.downloadState = MediaDownloadStateHasImage;
+                                            
                                             NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
                                             NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
                                             [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem];
+                                            
+                                            // retry downloads:
+                                            [self saveImages]; // ?
+                                        } else { // retry downloads:
+                                            mediaItem.downloadState = MediaDownloadStateNonRecoverableError;
                                         }
+                                        
+                                        //[self saveImages]; // pre- retry downloads:
+                                        
                                     } failure:^(AFHTTPRequestOperation* _Nullable operation, NSError* _Nonnull error) {
                                         NSLog(@"Error downloading image: %@", error);
+                                        
+                                        mediaItem.downloadState = MediaDownloadStateNonRecoverableError;
+                                        
+                                        if ([error.domain isEqualToString:NSURLErrorDomain]) {
+                                            if (error.code == NSURLErrorTimedOut ||
+                                                error.code == NSURLErrorCancelled ||
+                                                error.code == NSURLErrorCannotConnectToHost ||
+                                                error.code == NSURLErrorNetworkConnectionLost ||
+                                                error.code == NSURLErrorNotConnectedToInternet ||
+                                                error.code == kCFURLErrorInternationalRoamingOff ||
+                                                error.code == kCFURLErrorCallIsActive ||
+                                                error.code == kCFURLErrorDataNotAllowed ||
+                                                error.code == kCFURLErrorRequestBodyStreamExhausted) {
+                                                
+                                                mediaItem.downloadState = MediaDownloadStateNeedsImage;
+                                            }
+                                        }
                                     }];
         
 //        // basic network: try to download images

@@ -9,6 +9,21 @@
 //#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h> // includes all Foundation objects NSObject, NSString, NSURL
 
+//typedef enum {
+//    MediaDownloadStateNeedsImage,
+//    MediaDownloadStateDownloadInProgress,
+//    MediaDownloadStateNonRecoverableError,
+//    MediaDownloadStateHasImage
+//} MediaDownloadState;
+
+// better performance (according to NSHipster)
+typedef NS_ENUM(NSInteger, MediaDownloadState) {
+    MediaDownloadStateNeedsImage = 0, // this is default value since 0
+    MediaDownloadStateDownloadInProgress = 1,
+    MediaDownloadStateNonRecoverableError = 2,
+    MediaDownloadStateHasImage = 3
+};
+
 @class User; // forward declare as generally bad to #import custom classes in .h
 
 @interface Media : NSObject <NSCoding> // 1/2 of archiving (also NSKeyedArchiver)
@@ -17,6 +32,9 @@
 @property (nonatomic) User* user;
 @property (nonatomic) NSURL* mediaURL;
 @property (nonatomic) UIImage* image; // needs UIKit
+
+@property (nonatomic) MediaDownloadState downloadState; // should default to assign
+
 @property (nonatomic) NSString* caption;
 @property (nonatomic) NSArray* comments;
 

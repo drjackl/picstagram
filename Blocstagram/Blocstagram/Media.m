@@ -24,6 +24,9 @@
         NSURL* standardResolutionImageURL = [NSURL URLWithString:standardResolutionImageURLString];
         if (standardResolutionImageURL) {
             self.mediaURL = standardResolutionImageURL;
+            self.downloadState = MediaDownloadStateNeedsImage; // retry downloads
+        } else { // needed in retry downloads
+            self.downloadState = MediaDownloadStateNonRecoverableError;
         }
         
         // caption might be null if there's no caption (so may be an NSNull)
@@ -82,6 +85,16 @@
         self.user = [aDecoder decodeObjectForKey:NSStringFromSelector(@selector(user))];
         self.mediaURL = [aDecoder decodeObjectForKey:NSStringFromSelector(@selector(mediaURL))];
         self.image = [aDecoder decodeObjectForKey:NSStringFromSelector(@selector(image))];
+        
+        // retry downloads: different way of determination, though other way ok too
+        if (self.image) {
+            self.downloadState = MediaDownloadStateHasImage;
+        } else if (self.mediaURL) {
+            self.downloadState = MediaDownloadStateNeedsImage;
+        } else {
+            self.downloadState = MediaDownloadStateNonRecoverableError;
+        }
+        
         self.caption = [aDecoder decodeObjectForKey:NSStringFromSelector(@selector(caption))];
         self.comments = [aDecoder decodeObjectForKey:NSStringFromSelector(@selector(comments))];
     }
