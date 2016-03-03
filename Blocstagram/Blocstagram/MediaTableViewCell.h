@@ -18,6 +18,7 @@
 // for sharing
 - (void) cell:(MediaTableViewCell*)cell didLongPressImageView:(UIImageView*)imageView;
 
+// for retry download image
 - (void) cell:(MediaTableViewCell*)cell didTwoFingerTapImageView:(UIImageView*)imageView;
 
 @end

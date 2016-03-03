@@ -18,6 +18,10 @@
 
 //@property (nonatomic) NSMutableArray* images; // default strong, cheap model
 
+// must declare since called in this class? no. should've known something silly was making xcode choke
+//- (void) downloadIfNeedsImageAtIndexPath:(NSIndexPath*)indexPath; // !!! it's (type)var not (type var)
+//- (void) downloadVisibleCells;
+
 @end
 
 @implementation ImagesTableViewController
@@ -95,6 +99,53 @@
 // scroll view delegate protocol that's invoked on every scroll direction
 - (void) scrollViewDidScroll:(UIScrollView*)scrollView {
     [self infiniteScrollIfNecessary];
+
+    
+    // print out deceleration rates
+    
+    //NSLog(@"did scroll");
+
+    // also always seems to be 0.998
+    //NSLog(@"scrollview Decelerating at rate: %f", [scrollView decelerationRate]);
+
+    // always seems to be fast and at 0.998
+    CGFloat decelerationRate = [scrollView decelerationRate];
+    if (decelerationRate >= UIScrollViewDecelerationRateFast) {
+        NSLog(@"Fast decelerating: %f", decelerationRate);
+    } else if (decelerationRate >= UIScrollViewDecelerationRateNormal) {
+        NSLog(@"Normal decelerating: %f", decelerationRate);
+    } else {
+        NSLog(@"Slow decelerating?: %f", decelerationRate);
+    }
+    
+    NSLog(@"Dragging? %@", scrollView.dragging ? @"YES" : @"NO");
+}
+
+// also see scrollViewDidScroll
+- (void) scrollViewWillBeginDecelerating:(UIScrollView*)scrollView {
+    [self downloadVisibleCells];
+    
+    // these are both always the same and at 0.998
+//    NSLog(@"table Decelerating at rate: %f", [self.tableView decelerationRate]);
+//    NSLog(@"scrollview Decelerating at rate: %f", [scrollView decelerationRate]);
+
+}
+
+// goes through all visible cells and downloads if needs image
+- (void) downloadVisibleCells {
+    NSArray* visibleIndexPaths = [self.tableView indexPathsForVisibleRows];
+    for (NSIndexPath* indexPath in visibleIndexPaths) {
+        [self downloadIfNeedsImageAtIndexPath:indexPath];
+    }
+}
+
+// extracted originally from tableView:willDisplayCell:
+// downloads only if needs image
+- (void) downloadIfNeedsImageAtIndexPath:(NSIndexPath*) indexPath {
+    Media* media = [DataSource sharedInstance].mediaItems[indexPath.row]; // weird couldn't autocomplete .row (forgot the . after mediaItems)
+    if (media.downloadState == MediaDownloadStateNeedsImage) {
+        [[DataSource sharedInstance] downloadImageForMediaItem:media];
+    }
 }
 
 
@@ -287,15 +338,6 @@
     }
 }
 
-// for redownloading images: instead of downloading images as we get media items,
-// check if need images right before display
-- (void) tableView:(UITableView*)tableView willDisplayCell:(UITableViewCell*)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
-    Media* media = [DataSource sharedInstance].mediaItems[indexPath.row]; // weird couldn't autocomplete .row
-    if (media.downloadState == MediaDownloadStateNeedsImage) {
-        [[DataSource sharedInstance] downloadImageForMediaItem:media];
-    }
-}
-
 /*
 // Override to support rearranging the table view.
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
@@ -309,6 +351,15 @@
     return YES;
 }
 */
+
+// for redownloading images: instead of downloading images as we get media items,
+// check if need images right before display
+- (void) tableView:(UITableView*)tableView willDisplayCell:(UITableViewCell*)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
+    // original checkpoint code extracted
+    //[self downloadIfNeedsImageAtIndexPath:indexPath]; // weird didn't autocomplete method after defining
+}
+
+
 
 /*
 #pragma mark - Navigation

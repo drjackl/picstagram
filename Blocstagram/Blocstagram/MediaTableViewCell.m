@@ -222,7 +222,8 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
         CGRectGetWidth(self.contentView.bounds) > 0) {
         self.imageHeightConstraint.constant = self.mediaItem.image.size.height * (CGRectGetWidth(self.contentView.bounds) / self.mediaItem.image.size.width);
     } else {
-        self.imageHeightConstraint.constant = 0;
+        //self.imageHeightConstraint.constant = 0; // originally, just make height 0
+        self.imageHeightConstraint.constant = 200; // reduce jumpiness try: set to greater than 0
     }
     
     // hide line between cells
