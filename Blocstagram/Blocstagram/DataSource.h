@@ -26,6 +26,7 @@ typedef void (^NewItemCompletionBlock)(NSError* error);
 //+ (void) deleteItemAtIndex:(NSInteger)row; // initial deletion handling (not quite right)
 - (void) deleteMediaItem:(Media*)item; // KVO deleting
 //- (void) moveMediaItemToTop:(Media*)item; // KVO moving to top
+- (void) retryDownloadingMediaitem:(Media*)item;
 
 // pull-to-refresh: 1. gets new data 2. create new Media objects 3. call handler when done
 - (void) requestNewItemsWithCompletionHandler:(NewItemCompletionBlock)completionHandler;

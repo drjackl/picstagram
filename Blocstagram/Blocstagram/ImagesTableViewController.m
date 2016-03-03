@@ -173,6 +173,11 @@
     [cell.mediaItem shareGivenViewController:self];
 }
 
+- (void) cell:(MediaTableViewCell*)cell didTwoFingerTapImageView:(UIImageView*)imageView {
+    NSLog(@"Two finger tap heard");
+    [[DataSource sharedInstance] retryDownloadingMediaitem:cell.mediaItem];
+}
+
 #pragma mark - Table view data source
 
 // can delete since the default returns 1, which we want

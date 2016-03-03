@@ -17,7 +17,7 @@
 @property (nonatomic) UILabel* usernameAndCaptionLabel;
 @property (nonatomic) UILabel* commentLabel;
 
-//// auto-layout: create properties just for ones you'll change later
+// auto-layout: create properties just for ones you'll change later
 @property (nonatomic) NSLayoutConstraint* imageHeightConstraint;
 @property (nonatomic) NSLayoutConstraint* usernameAndCaptionLabelHeightConstraint;
 @property (nonatomic) NSLayoutConstraint* commentLabelHeightConstraint;
@@ -25,6 +25,9 @@
 // for tap image fullscreens it
 @property (nonatomic) UITapGestureRecognizer* tapGestureRecognizer;
 @property (nonatomic) UILongPressGestureRecognizer* longPressGestureRecognizer;
+
+// two finger tap retries an image download
+@property (nonatomic) UITapGestureRecognizer* twoFingerTapGestureRecognizer;
 
 @end
 
@@ -98,6 +101,12 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
         self.longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressFired:)]; // for sharing
         self.longPressGestureRecognizer.delegate = self;
         [self.mediaImageView addGestureRecognizer:self.longPressGestureRecognizer];
+        
+        // two finger tap retries downloading image
+        self.twoFingerTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(twoFingerTapFired:)];
+        self.twoFingerTapGestureRecognizer.numberOfTouchesRequired = 2;
+        self.twoFingerTapGestureRecognizer.delegate = self;
+        [self.mediaImageView addGestureRecognizer:self.twoFingerTapGestureRecognizer];
         
         
         // initialization code continued
@@ -236,6 +245,10 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
     if (sender.state == UIGestureRecognizerStateBegan) { // Recognized is finger lift
         [self.delegate cell:self didLongPressImageView:self.mediaImageView];
     }
+}
+
+- (void) twoFingerTapFired:(UITapGestureRecognizer*)sender {
+    [self.delegate cell:self didTwoFingerTapImageView:self.mediaImageView];
 }
 
 #pragma mark - UIGesturedRecognizerDelegate

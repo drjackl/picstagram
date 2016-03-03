@@ -18,6 +18,8 @@
 // for sharing
 - (void) cell:(MediaTableViewCell*)cell didLongPressImageView:(UIImageView*)imageView;
 
+- (void) cell:(MediaTableViewCell*)cell didTwoFingerTapImageView:(UIImageView*)imageView;
+
 @end
 
 
