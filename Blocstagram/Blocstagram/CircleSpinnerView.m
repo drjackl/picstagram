@@ -33,19 +33,21 @@
         // spinning circle will fit inside this rect
         CGRect rect = CGRectMake(0, 0, arcCenter.x*2, arcCenter.y*2);
         
-        // for angles, 0 is east, pi/2 is south, pi is west, 3pi/2 is north
-        UIBezierPath* smoothPath = [UIBezierPath bezierPathWithArcCenter:arcCenter
-                                                                  radius:self.radius
-                                                              startAngle:M_PI*3/2
-                                                                endAngle:M_PI/2 + M_PI*5
-                                                               clockwise:YES]; // can't be NO
+//        // original: for angles, 0 is east, pi/2 is south, pi is west, 3pi/2 is north
+//        UIBezierPath* smoothPath = [UIBezierPath bezierPathWithArcCenter:arcCenter
+//                                                                  radius:self.radius
+//                                                              startAngle:M_PI*3/2
+//                                                                endAngle:M_PI/2 + M_PI*5
+//                                                               clockwise:YES]; // can't be NO
+        UIBezierPath* smoothPath = [UIBezierPath bezierPathWithRoundedRect:rect byRoundingCorners:UIRectCornerBottomLeft | UIRectCornerTopRight cornerRadii:CGSizeMake(5, 5)];
         
         // layer is made from bezier path
         // also, core animation uses CGColorRef not UIColor
         _circleLayer = [CAShapeLayer layer];
         _circleLayer.contentsScale = [[UIScreen mainScreen] scale]; // 1.0 regular, 2.0 retina displays
         _circleLayer.frame = rect;
-        _circleLayer.fillColor = [UIColor clearColor].CGColor; // transparent so can see heart
+        _circleLayer.fillColor = [UIColor clearColor].CGColor; // original: transparent so can see heart
+        //_circleLayer.fillColor = [UIColor greenColor].CGColor; // changed: green splotch
         _circleLayer.strokeColor = self.strokeColor.CGColor; // want same defined color
         _circleLayer.lineWidth = self.strokeThickness;
         _circleLayer.lineCap = kCALineCapRound;
@@ -59,15 +61,18 @@
         _circleLayer.mask = maskLayer;
         
         // now will animate mask in circular motion
-        CFTimeInterval animationDuration = 1; // seconds
-        CAMediaTimingFunction* linearCurve = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear]; // linear means constant
+        //CFTimeInterval animationDuration = 1; // seconds (original)
+        CFTimeInterval animationDuration = 0.2; // seconds
+        //CAMediaTimingFunction* linearCurve = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear]; // linear means constant
+        CAMediaTimingFunction* easeInEaseOutCurve = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
         
         // animation repeated infinite
         CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation"];
         animation.fromValue = @0;
         animation.toValue = @(M_PI*2);
         animation.duration = animationDuration;
-        animation.timingFunction = linearCurve;
+        //animation.timingFunction = linearCurve; // original
+        animation.timingFunction = easeInEaseOutCurve;
         animation.removedOnCompletion = NO;
         animation.repeatCount = INFINITY;
         animation.fillMode = kCAFillModeForwards; // specifies what happens when animation is complete
@@ -79,7 +84,8 @@
         animationGroup.duration = animationDuration;
         animationGroup.repeatCount = INFINITY;
         animationGroup.removedOnCompletion = NO;
-        animationGroup.timingFunction = linearCurve;
+        //animationGroup.timingFunction = linearCurve; // original
+        animationGroup.timingFunction = easeInEaseOutCurve;
         
         CABasicAnimation* strokeStartAnimation = [CABasicAnimation animationWithKeyPath:@"strokeStart"];
         strokeStartAnimation.fromValue = @0.015;

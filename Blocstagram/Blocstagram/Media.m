@@ -49,6 +49,10 @@
         // set like state based on whether user has already liked the image
         BOOL userHasLiked = [mediaDictionary[@"user_has_liked"] boolValue];
         self.likeState = userHasLiked ? LikeStateLiked : LikeStateNotLiked;
+        
+        // set like count
+        NSString* likeCountString = mediaDictionary[@"likes"][@"count"];
+        self.likeCount = [likeCountString intValue];
     }
     return self;
 }
@@ -84,6 +88,9 @@
     
     // encode like state (note encodeInteger: not encodeObject:)
     [aCoder encodeInteger:self.likeState forKey:NSStringFromSelector(@selector(likeState))];
+    
+    // encode like count
+    [aCoder encodeInteger:self.likeCount forKey:NSStringFromSelector(@selector(likeCount))];
 }
 
 - (instancetype) initWithCoder:(NSCoder*)aDecoder {
@@ -109,6 +116,9 @@
         
         // decode like state (also uses decodeIntegerForKey, not Object)
         self.likeState = [aDecoder decodeIntegerForKey:NSStringFromSelector(@selector(likeState))];
+        
+        // decode like count
+        self.likeCount = [aDecoder decodeIntegerForKey:NSStringFromSelector(@selector(likeCount))];
     }
     return self;
 }

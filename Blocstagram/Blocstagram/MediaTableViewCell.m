@@ -11,6 +11,7 @@
 #import "Media.h"
 #import "Comment.h"
 #import "LikeButton.h" // for adding like buttons
+#import "LikeCountLabel.h"
 
 @interface MediaTableViewCell () <UIGestureRecognizerDelegate> // to recognize tap
 
@@ -32,6 +33,8 @@
 
 
 @property (nonatomic) LikeButton* likeButton; // the like button for this cell
+
+@property (nonatomic) LikeCountLabel* likeCountLabel; // like count label for this cell
 
 @end
 
@@ -129,16 +132,21 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
         [self.likeButton addTarget:self action:@selector(likePressed:) forControlEvents:UIControlEventTouchUpInside];
         self.likeButton.backgroundColor = usernameLabelGray;
         
-        // like button 2. add to hierarchy
-        for (UIView* view in @[self.mediaImageView, self.usernameAndCaptionLabel, self.commentLabel, self.likeButton]) {
+        // like count: 1. create
+        self.likeCountLabel = [[LikeCountLabel alloc] initWithCount:self.mediaItem.likeCount];
+        //self.likeCountLabel.text = [NSString stringWithFormat:@"%d", self.mediaItem.likeCount];
+        self.likeCountLabel.backgroundColor = usernameLabelGray;
+        
+        // like button/count 2. add to hierarchy
+        for (UIView* view in @[self.mediaImageView, self.usernameAndCaptionLabel, self.commentLabel, self.likeButton, self.likeCountLabel]) {
             [self.contentView addSubview:view];
             
             // for auto-layout needs to be set to NO
             view.translatesAutoresizingMaskIntoConstraints = NO;
         }
         
-        // auto-layout: add some constraints (like button 3. update constraints)
-        NSDictionary* viewDictionary = NSDictionaryOfVariableBindings(_mediaImageView, _usernameAndCaptionLabel, _commentLabel, _likeButton);
+        // auto-layout: add some constraints (like button/count 3. update constraints)
+        NSDictionary* viewDictionary = NSDictionaryOfVariableBindings(_mediaImageView, _usernameAndCaptionLabel, _commentLabel, _likeButton, _likeCountLabel);
         
         // visual format begins with H: or V:
         // | is superview, [viewVariable] represents one view
@@ -148,8 +156,11 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
 //        // original constraint before like button
 //        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_usernameAndCaptionLabel]|" options:kNilOptions metrics:nil views:viewDictionary]];
         
-        // like button 3. update constraints (visualFormat and options different!)
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_usernameAndCaptionLabel][_likeButton(==38)]|" options:NSLayoutFormatAlignAllTop | NSLayoutFormatAlignAllBottom metrics:nil views:viewDictionary]];
+//        // like button 3. update constraints (visualFormat and options different!)
+//        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_usernameAndCaptionLabel][_likeButton(==38)]|" options:NSLayoutFormatAlignAllTop | NSLayoutFormatAlignAllBottom metrics:nil views:viewDictionary]];
+        
+        // like count 3. update constraints
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_usernameAndCaptionLabel][_likeCountLabel(==25)][_likeButton(==38)]|" options:NSLayoutFormatAlignAllTop | NSLayoutFormatAlignAllBottom metrics:nil views:viewDictionary]];
         
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_commentLabel]|" options:kNilOptions metrics:nil views:viewDictionary]];
         
@@ -256,7 +267,7 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
 
 // target-action method to inform delegate
 - (void) likePressed:(UIButton*)sender {
-    NSLog(@"Like Pressed");
+    //NSLog(@"Like Pressed");
     [self.delegate cellDidPressLikeButton:self];
 }
 
@@ -313,6 +324,9 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
     
     // like button: display correct state
     self.likeButton.likeButtonState = mediaItem.likeState;
+    
+    // like count
+    self.likeCountLabel.likeCount = mediaItem.likeCount;
 }
 
 #pragma mark - Attributed String

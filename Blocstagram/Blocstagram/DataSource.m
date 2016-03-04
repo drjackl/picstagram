@@ -149,6 +149,13 @@
             
             mediaItem.likeState = LikeStateLiked;
             
+            // increment like count when successfully like something
+            mediaItem.likeCount++;
+            
+            // also save on successful change
+            [self saveImages];
+            
+            
             if (completionHandler) {
                 completionHandler();
             }
@@ -166,6 +173,13 @@
         
         [self.instagramOperationManager DELETE:urlString parameters:parameters success:^(AFHTTPRequestOperation* _Nonnull operation, id  _Nonnull responseObject) {
             mediaItem.likeState = LikeStateNotLiked;
+            
+            // decrement like count when successfully unlike something
+            mediaItem.likeCount--;
+            
+            // also save on successful change
+            [self saveImages];
+            
             
             if (completionHandler) {
                 completionHandler();
@@ -293,7 +307,7 @@
 }
 
 - (void) parseDataFromFeedDictionary:(NSDictionary*)feedDictionary fromRequestWithParameters:(NSDictionary*)parameters {
-    //NSLog(@"%@", feedDictionary); // first time login and getting data
+    NSLog(@"%@", feedDictionary); // first time login and getting data
     
     // now actually parse the IG feed
     NSArray* mediaArray = feedDictionary[@"data"];
