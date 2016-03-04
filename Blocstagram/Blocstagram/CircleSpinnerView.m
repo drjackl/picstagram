@@ -38,7 +38,7 @@
                                                                   radius:self.radius
                                                               startAngle:M_PI*3/2
                                                                 endAngle:M_PI/2 + M_PI*5
-                                                               clockwise:NO];
+                                                               clockwise:YES]; // can't be NO
         
         // layer is made from bezier path
         // also, core animation uses CGColorRef not UIColor
