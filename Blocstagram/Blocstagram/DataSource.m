@@ -133,6 +133,53 @@
     return dataPath;
 }
 
+#pragma mark - Liking Media Items
+
+// IG API on likes, POST for like, DELETE for unlike
+// basically, if notliked set to liking. send POST. if worked set to liked, else revert
+- (void) toggleLikeOnMediaItem:(Media*)mediaItem withCompletionHandler:(void (^)(void))completionHandler {
+    NSString* urlString = [NSString stringWithFormat:@"media/%@/likes", mediaItem.idNumber];
+    NSDictionary* parameters = @{@"access_token": self.accessToken};
+    
+    if (mediaItem.likeState == LikeStateNotLiked) {
+        
+        mediaItem.likeState = LikeStateLiking;
+        
+        [self.instagramOperationManager POST:urlString parameters:parameters success:^(AFHTTPRequestOperation* _Nonnull operation, id  _Nonnull responseObject) {
+            
+            mediaItem.likeState = LikeStateLiked;
+            
+            if (completionHandler) {
+                completionHandler();
+            }
+        } failure:^(AFHTTPRequestOperation* _Nullable operation, NSError* _Nonnull error) {
+            
+            mediaItem.likeState = LikeStateNotLiked;
+            
+            if (completionHandler) {
+                completionHandler();
+            }
+        }];
+    } else if (mediaItem.likeState == LikeStateLiked) {
+        
+        mediaItem.likeState = LikeStateUnliking;
+        
+        [self.instagramOperationManager DELETE:urlString parameters:parameters success:^(AFHTTPRequestOperation* _Nonnull operation, id  _Nonnull responseObject) {
+            mediaItem.likeState = LikeStateNotLiked;
+            
+            if (completionHandler) {
+                completionHandler();
+            }
+        } failure:^(AFHTTPRequestOperation* _Nullable operation, NSError* _Nonnull error) {
+            mediaItem.likeState = LikeStateLiked;
+            
+            if (completionHandler) {
+                completionHandler();
+            }
+        }];
+    }
+}
+
 #pragma mark - Login Access and Populate/Parse Data
 
 // initialize operation manager
@@ -179,7 +226,7 @@
         [mutableParameters addEntriesFromDictionary:parameters];
         
         // request op gets the resource and if successful, response obj passed to parseData
-        [self.instagramOperationManager GET:@"users/self/feed"
+        [self.instagramOperationManager GET:@"users/self/media/recent/" // NOT users/self/feed (also for got extra /)
                                  parameters:mutableParameters
                                     success:^(AFHTTPRequestOperation* _Nonnull operation, id  _Nonnull responseObject) {
                                         if ([responseObject isKindOfClass:[NSDictionary class]]) {
@@ -246,7 +293,7 @@
 }
 
 - (void) parseDataFromFeedDictionary:(NSDictionary*)feedDictionary fromRequestWithParameters:(NSDictionary*)parameters {
-    NSLog(@"%@", feedDictionary); // first time login and getting data
+    //NSLog(@"%@", feedDictionary); // first time login and getting data
     
     // now actually parse the IG feed
     NSArray* mediaArray = feedDictionary[@"data"];

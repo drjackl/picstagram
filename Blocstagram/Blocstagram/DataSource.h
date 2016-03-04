@@ -31,6 +31,11 @@ typedef void (^NewItemCompletionBlock)(NSError* error);
 // expose this for retry downloading images (maybe don't need retry: method)
 - (void) downloadImageForMediaItem:(Media*)mediaItem;
 
+
+// tells IG about the change, updates Media object, calls handler when done
+- (void) toggleLikeOnMediaItem:(Media*)mediaItem withCompletionHandler:(void (^)(void))completionHandler;
+
+
 // pull-to-refresh: 1. gets new data 2. create new Media objects 3. call handler when done
 - (void) requestNewItemsWithCompletionHandler:(NewItemCompletionBlock)completionHandler;
 // infinite scroll

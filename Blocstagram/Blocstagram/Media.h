@@ -8,6 +8,7 @@
 
 //#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h> // includes all Foundation objects NSObject, NSString, NSURL
+#import "LikeButton.h" // so can get LikeState and all possible states
 
 //typedef enum {
 //    MediaDownloadStateNeedsImage,
@@ -37,6 +38,10 @@ typedef NS_ENUM(NSInteger, MediaDownloadState) {
 
 @property (nonatomic) NSString* caption;
 @property (nonatomic) NSArray* comments;
+
+
+@property (nonatomic) LikeState likeState; // keeps media item's like state
+
 
 - (instancetype) initWithDictionary:(NSDictionary*)mediaDictionary;
 

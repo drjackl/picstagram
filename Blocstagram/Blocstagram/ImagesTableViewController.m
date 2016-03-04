@@ -108,17 +108,17 @@
     // also always seems to be 0.998
     //NSLog(@"scrollview Decelerating at rate: %f", [scrollView decelerationRate]);
 
-    // always seems to be fast and at 0.998
-    CGFloat decelerationRate = [scrollView decelerationRate];
-    if (decelerationRate >= UIScrollViewDecelerationRateFast) {
-        NSLog(@"Fast decelerating: %f", decelerationRate);
-    } else if (decelerationRate >= UIScrollViewDecelerationRateNormal) {
-        NSLog(@"Normal decelerating: %f", decelerationRate);
-    } else {
-        NSLog(@"Slow decelerating?: %f", decelerationRate);
-    }
-    
-    NSLog(@"Dragging? %@", scrollView.dragging ? @"YES" : @"NO");
+//    // always seems to be fast and at 0.998
+//    CGFloat decelerationRate = [scrollView decelerationRate];
+//    if (decelerationRate >= UIScrollViewDecelerationRateFast) {
+//        NSLog(@"Fast decelerating: %f", decelerationRate);
+//    } else if (decelerationRate >= UIScrollViewDecelerationRateNormal) {
+//        NSLog(@"Normal decelerating: %f", decelerationRate);
+//    } else {
+//        NSLog(@"Slow decelerating?: %f", decelerationRate);
+//    }
+//    
+//    NSLog(@"Dragging? %@", scrollView.dragging ? @"YES" : @"NO");
 }
 
 // also see scrollViewDidScroll
@@ -227,6 +227,19 @@
 - (void) cell:(MediaTableViewCell*)cell didTwoFingerTapImageView:(UIImageView*)imageView {
     NSLog(@"Two finger tap heard");
     [[DataSource sharedInstance] retryDownloadingMediaItem:cell.mediaItem];
+}
+
+// setting cell.mediaItem will update button's appearance which we always do in end
+- (void) cellDidPressLikeButton:(MediaTableViewCell*)cell {
+    Media* item = cell.mediaItem;
+    
+    [[DataSource sharedInstance] toggleLikeOnMediaItem:item withCompletionHandler:^{
+        if (cell.mediaItem == item) { // important to check cuz cells get reloaded
+            cell.mediaItem = item;
+        }
+    }];
+    
+    cell.mediaItem = item;
 }
 
 #pragma mark - Table view data source

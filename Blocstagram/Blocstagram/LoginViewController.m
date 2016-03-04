@@ -30,7 +30,7 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    [self clearInstagramCookies]; // clear cookies in case
+    //[self clearInstagramCookies]; // clear cookies in case
     
     // webView: 1. create 2. set self as delegate 3. add to subview 4. set property 5. set frame (in viewWillLayoutSubviews)
     UIWebView* webView = [[UIWebView alloc] init];
@@ -50,10 +50,16 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
     // set title for View
     self.title = NSLocalizedString(@"Login", @"Login");
     
-    // webView: to get correct login, need to provide IG Client ID (in DataSource)
+    // (original) webView: to get correct login, need to provide IG Client ID (in DataSource)
     NSString* urlString = [NSString stringWithFormat:@"https://instagram.com/oauth/authorize/?client_id=%@&redirect_uri=%@&response_type=token",
                            [DataSource instagramClientID],
                            [self redirectURI]];
+
+//    // add scope to get likes, comments, relationships
+//    NSString* urlString = [NSString stringWithFormat:@"https://instagram.com/oauth/authorize/?client_id=%@&scope=likes+comments+relationships&redirect_uri=%@&response_type=token",
+//                           [DataSource instagramClientID],
+//                           [self redirectURI]];
+    
     NSURL* url = [NSURL URLWithString:urlString];
     
     if (url) {

@@ -21,6 +21,9 @@
 // for retry download image
 - (void) cell:(MediaTableViewCell*)cell didTwoFingerTapImageView:(UIImageView*)imageView;
 
+// for adding like button to table cell
+- (void) cellDidPressLikeButton:(MediaTableViewCell*)cell;
+
 @end
 
 

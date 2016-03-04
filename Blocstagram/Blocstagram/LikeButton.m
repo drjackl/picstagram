@@ -52,7 +52,7 @@
 
 // override setter to update button's appearance based on state
 - (void) setLikeButtonState:(LikeState)likeButtonState {
-    _likeButtonState = likeState;
+    _likeButtonState = likeButtonState;
     
     NSString* imageName;
     
