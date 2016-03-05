@@ -34,7 +34,7 @@
         
         [self.leftButton setImage:[UIImage imageNamed:imageNames.firstObject] forState:UIControlStateNormal];
         [self.rightButton setImage:[UIImage imageNamed:imageNames.lastObject] forState:UIControlStateNormal];
-        [self.cameraButton setImage:@"camera" forState:UIControlStateNormal];
+        [self.cameraButton setImage:[UIImage imageNamed:@"camera"] forState:UIControlStateNormal];
         [self.cameraButton setContentEdgeInsets:UIEdgeInsetsMake(10, 10, 15, 10)];
         
         self.whiteView = [UIView new];
@@ -60,16 +60,16 @@
     NSArray* allButtonsHorizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_leftButton][_cameraButton(==_leftButton)][_rightButton(==_leftButton)]|" options:kNilOptions metrics:nil views:viewDictionary];
     
     // left and right buttons are 10 from top; all aligned on bottom
-    NSArray* leftButtonVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[_leftButton]|" options:kNilOptions metrics:nil views:viewDictionary];
+    NSArray* leftButtonVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[_leftButton]|" options:kNilOptions metrics:nil views:viewDictionary]; // whites are giving me trouble
     NSArray* cameraButtonVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_cameraButton]|" options:kNilOptions metrics:nil views:viewDictionary];
     NSArray* rightButtonVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[_rightButton]|" options:kNilOptions metrics:nil views:viewDictionary];
     
     // white view goes behind all buttons, 10 pts from top
     NSArray* whiteViewHorizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_whiteView]|" options:kNilOptions metrics:nil views:viewDictionary];
-    NSArray* whiteViewVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[_whiteView]|" options:kNilOptions metrics:nil views:viewDictionary];
+    NSArray* whiteViewVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[_whiteView]|" options:kNilOptions metrics:nil views:viewDictionary]; // this one causing trouble
     
     // purple view is positioned identically to camera button
-    NSArray* purpleViewHorizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_leftButton][_purpleView][_rightButton]|" options:kNilOptions metrics:nil views:viewDictionary];
+    NSArray* purpleViewHorizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_leftButton][_purpleView][_rightButton]" options:kNilOptions metrics:nil views:viewDictionary];
     NSArray* purpleViewVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_purpleView]|" options:kNilOptions metrics:nil views:viewDictionary];
     
     NSArray* allConstraintsArrays = @[allButtonsHorizontalConstraints, leftButtonVerticalConstraints, cameraButtonVerticalConstraints, rightButtonVerticalConstraints, whiteViewHorizontalConstraints, whiteViewVerticalConstraints, purpleViewHorizontalConstraints, purpleViewVerticalConstraints];
