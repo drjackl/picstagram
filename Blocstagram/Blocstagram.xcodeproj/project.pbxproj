@@ -34,6 +34,7 @@
 		04B572B71C860D2B00BFF958 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B572B61C860D2B00BFF958 /* LoginViewController.m */; };
 		04F728C21C88F05300BEBE44 /* LikeButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C11C88F05300BEBE44 /* LikeButton.m */; };
 		04F728C51C89494000BEBE44 /* LikeCountLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C41C89494000BEBE44 /* LikeCountLabel.m */; };
+		04F728C81C896DEF00BEBE44 /* ComposeCommentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C71C896DEF00BEBE44 /* ComposeCommentView.m */; };
 		4FCE47F031E0229D2B6B5B6E /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B8425D331B723A238CCDC2D6 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -100,6 +101,8 @@
 		04F728C11C88F05300BEBE44 /* LikeButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LikeButton.m; sourceTree = "<group>"; };
 		04F728C31C89494000BEBE44 /* LikeCountLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LikeCountLabel.h; sourceTree = "<group>"; };
 		04F728C41C89494000BEBE44 /* LikeCountLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LikeCountLabel.m; sourceTree = "<group>"; };
+		04F728C61C896DEE00BEBE44 /* ComposeCommentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComposeCommentView.h; sourceTree = "<group>"; };
+		04F728C71C896DEF00BEBE44 /* ComposeCommentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ComposeCommentView.m; sourceTree = "<group>"; };
 		364DECFF8469B9F966A49FBD /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		A7208A788906F453EAD9A4A0 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		B8425D331B723A238CCDC2D6 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -173,6 +176,8 @@
 				04F728C11C88F05300BEBE44 /* LikeButton.m */,
 				04F728C31C89494000BEBE44 /* LikeCountLabel.h */,
 				04F728C41C89494000BEBE44 /* LikeCountLabel.m */,
+				04F728C61C896DEE00BEBE44 /* ComposeCommentView.h */,
+				04F728C71C896DEF00BEBE44 /* ComposeCommentView.m */,
 				04B572A61C835C8F00BFF958 /* User.h */,
 				04B572A71C835C8F00BFF958 /* User.m */,
 				04B572A91C835D8F00BFF958 /* Media.h */,
@@ -450,6 +455,7 @@
 				04F728C21C88F05300BEBE44 /* LikeButton.m in Sources */,
 				04F728C51C89494000BEBE44 /* LikeCountLabel.m in Sources */,
 				04B5725A1C82C60A00BFF958 /* main.m in Sources */,
+				04F728C81C896DEF00BEBE44 /* ComposeCommentView.m in Sources */,
 				04B572A21C82CB5500BFF958 /* ImagesTableViewController.m in Sources */,
 				0421A5B31C88E01700E45B71 /* CircleSpinnerView.m in Sources */,
 			);

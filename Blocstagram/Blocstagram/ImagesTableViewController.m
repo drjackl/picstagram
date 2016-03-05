@@ -18,6 +18,10 @@
 
 //@property (nonatomic) NSMutableArray* images; // default strong, cheap model
 
+// for comment view
+@property (nonatomic, weak) UIView* lastSelectedCommentView;
+@property (nonatomic) CGFloat lastKeyboardAdjustment;
+
 // must declare since called in this class? no. should've known something silly was making xcode choke
 //- (void) downloadIfNeedsImageAtIndexPath:(NSIndexPath*)indexPath; // !!! it's (type)var not (type var)
 //- (void) downloadVisibleCells;
@@ -59,6 +63,13 @@
 //    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"imageCell"]; // UITableView*Cell* not UITableView
     [self.tableView registerClass:[MediaTableViewCell class] forCellReuseIdentifier:@"mediaCell"]; // new custom cell
     
+    // for comment view, this mode lets user slide keyboard down like Messages app
+    self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
     
@@ -66,9 +77,27 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
+// override for comment view
+- (void) viewWillAppear:(BOOL)animated {
+    // don't call super since UITableVC has own keyboard appearance logic
+    NSIndexPath* indexPath = self.tableView.indexPathForSelectedRow;
+    if (indexPath) { // this we keep from super (ensuring cells deselected)
+        [self.tableView deselectRowAtIndexPath:indexPath animated:animated];
+    }
+}
+
+// override for comment view
+- (void) viewWillDisappear:(BOOL)animated {
+    // don't call super since UITableVC has own keyboard appearance logic
+    
+}
+
 // best place to remove observers when no longer needed (else may cause crash)
 - (void) dealloc {
     [[DataSource sharedInstance] removeObserver:self forKeyPath:@"mediaItems"];
+    
+    // for comment view
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -197,6 +226,80 @@
     return [DataSource sharedInstance].mediaItems;
 }
 
+#pragma mark - Keyboard Handling
+
+- (void) keyboardWillShow:(NSNotification*)notification {
+    // get keyboard fram within self.view's coordinate system
+    NSValue* frameValue = notification.userInfo[UIKeyboardFrameEndUserInfoKey];
+    CGRect keyboardFrameInScreenCoordinates = frameValue.CGRectValue;
+    CGRect keyboardFrameInViewCoordinates = [self.navigationController.view convertRect:keyboardFrameInScreenCoordinates fromView:nil];
+    
+    // get comment view frame in same coordinate system
+    CGRect commentViewFrameInViewCoordinates = [self.navigationController.view convertRect:self.lastSelectedCommentView.bounds fromView:self.lastSelectedCommentView];
+    
+    CGFloat keyboardY = CGRectGetMinY(keyboardFrameInViewCoordinates);
+    CGFloat commentViewY = CGRectGetMinY(commentViewFrameInViewCoordinates);
+    CGFloat difference = commentViewY - keyboardY;
+    
+    CGFloat heightToScroll = 0; // height to scroll starts at zero
+    if (difference > 0) { // positive if keyboard below comment view
+        heightToScroll += difference; // add difference to make even
+    }
+    
+    if (CGRectIntersectsRect(keyboardFrameInViewCoordinates, commentViewFrameInViewCoordinates)) {
+        CGRect intersectionRect = CGRectIntersection(keyboardFrameInViewCoordinates, commentViewFrameInViewCoordinates);
+        heightToScroll += CGRectGetHeight(intersectionRect);
+    }
+
+    if (heightToScroll > 0) {
+        CGPoint contentOffset = self.tableView.contentOffset;
+        UIEdgeInsets contentInsets = self.tableView.contentInset;
+        UIEdgeInsets scrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
+        
+        contentInsets.bottom += heightToScroll;
+        scrollIndicatorInsets.bottom += heightToScroll;
+        contentOffset.y += heightToScroll;
+        
+        NSNumber* durationNumber = notification.userInfo[UIKeyboardAnimationDurationUserInfoKey];
+        NSNumber* curveNumber = notification.userInfo[UIKeyboardAnimationCurveUserInfoKey];
+        
+        NSTimeInterval duration = durationNumber.doubleValue;
+        UIViewAnimationCurve curve = curveNumber.unsignedIntegerValue;
+        UIViewAnimationOptions options = curve << 16;
+        
+        [UIView animateWithDuration:duration delay:0 options:options
+                         animations:^{
+            self.tableView.contentInset = contentInsets;
+            self.tableView.scrollIndicatorInsets = scrollIndicatorInsets;
+            self.tableView.contentOffset = contentOffset;
+                         } completion:nil];
+    }
+    
+    self.lastKeyboardAdjustment = heightToScroll;
+}
+
+// keyboard hide is reversing show method
+- (void) keyboardWillHide:(NSNotification*)notification {
+    UIEdgeInsets contentInsets = self.tableView.contentInset;
+    contentInsets.bottom -= self.lastKeyboardAdjustment;
+    
+    UIEdgeInsets scrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
+    scrollIndicatorInsets.bottom -= self.lastKeyboardAdjustment;
+    
+    NSNumber* durationNumber = notification.userInfo[UIKeyboardAnimationDurationUserInfoKey];
+    NSNumber* curveNumber = notification.userInfo[UIKeyboardAnimationCurveUserInfoKey];
+    
+    NSTimeInterval duration = durationNumber.doubleValue;
+    UIViewAnimationCurve curve = curveNumber.unsignedIntegerValue;
+    UIViewAnimationOptions options = curve << 16;
+    
+    [UIView animateWithDuration:duration delay:0 options:options
+                     animations:^{
+                         self.tableView.contentInset = contentInsets;
+                         self.tableView.scrollIndicatorInsets = scrollIndicatorInsets;
+                     } completion:nil];
+}
+
 #pragma mark - MediaTableViewCellDelegate
 
 - (void) cell:(MediaTableViewCell*)cell didTapImageView:(UIImageView*)imageView {
@@ -240,6 +343,16 @@
     }];
     
     cell.mediaItem = item;
+}
+
+// comment view related delegate methods: if start composing, store view reference
+- (void) cellWillStartComposingComment:(MediaTableViewCell*)cell {
+    self.lastSelectedCommentView = (UIView*)cell.commentView;
+}
+
+// comment view related delegate methods: if button press, upload comment via API
+- (void) cell:(MediaTableViewCell*)cell didComposeComment:(NSString*)comment {
+    [[DataSource sharedInstance] commentOnMediaitem:cell.mediaItem withCommentText:comment];
 }
 
 #pragma mark - Table view data source
@@ -345,9 +458,9 @@
 - (CGFloat) tableView:(UITableView*)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath*)indexPath {
     Media* item = [DataSource sharedInstance].mediaItems[indexPath.row];
     if (item.image) {
-        return 350;
+        return 450;//350; // minimize jerky scrolling for comment view
     } else {
-        return 150;
+        return 250;//150; // minimize jerky scrolling for comment view
     }
 }
 
@@ -364,6 +477,12 @@
     return YES;
 }
 */
+
+// if row tapped, assume user doesn't want keyboard
+- (void) tableView:(UITableView*)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    MediaTableViewCell* cell = (MediaTableViewCell*)[tableView cellForRowAtIndexPath:indexPath];
+    [cell stopComposingComment];
+}
 
 // for redownloading images: instead of downloading images as we get media items,
 // check if need images right before display

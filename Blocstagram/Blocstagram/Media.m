@@ -115,10 +115,10 @@
         
         
         // decode like state (also uses decodeIntegerForKey, not Object)
-        self.likeState = [aDecoder decodeIntegerForKey:NSStringFromSelector(@selector(likeState))];
+        self.likeState = [aDecoder decodeIntForKey:NSStringFromSelector(@selector(likeState))];
         
         // decode like count
-        self.likeCount = [aDecoder decodeIntegerForKey:NSStringFromSelector(@selector(likeCount))];
+        self.likeCount = [aDecoder decodeIntForKey:NSStringFromSelector(@selector(likeCount))];
     }
     return self;
 }

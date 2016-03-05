@@ -8,7 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@class Media, MediaTableViewCell; // declare self for below protocol
+// declare self for below protocol
+@class Media, MediaTableViewCell, ComposeCommentView;
 
 // add a delegate method to Cell which will inform VC when user taps on image
 @protocol MediaTableViewCellDelegate <NSObject>
@@ -24,6 +25,10 @@
 // for adding like button to table cell
 - (void) cellDidPressLikeButton:(MediaTableViewCell*)cell;
 
+// compose view delegate methods
+- (void) cellWillStartComposingComment:(MediaTableViewCell*)cell;
+- (void) cell:(MediaTableViewCell*)cell didComposeComment:(NSString*)comment;
+
 @end
 
 
@@ -33,7 +38,13 @@
 
 @property (nonatomic, weak) id <MediaTableViewCellDelegate> delegate;
 
+// for compose view
+@property (nonatomic, readonly) ComposeCommentView* commentView;
+
 // like static variables declared earlier, but in .h so all classes may use
 + (CGFloat) heightForMediaItem:(Media*)mediaItem width:(CGFloat)width;
+
+// compose view method
+- (void) stopComposingComment;
 
 @end

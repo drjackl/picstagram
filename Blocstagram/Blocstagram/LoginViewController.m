@@ -50,15 +50,20 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
     // set title for View
     self.title = NSLocalizedString(@"Login", @"Login");
     
-    // (original) webView: to get correct login, need to provide IG Client ID (in DataSource)
-    NSString* urlString = [NSString stringWithFormat:@"https://instagram.com/oauth/authorize/?client_id=%@&redirect_uri=%@&response_type=token",
-                           [DataSource instagramClientID],
-                           [self redirectURI]];
+//    // (original) webView: to get correct login, need to provide IG Client ID (in DataSource)
+//    NSString* urlString = [NSString stringWithFormat:@"https://instagram.com/oauth/authorize/?client_id=%@&redirect_uri=%@&response_type=token",
+//                           [DataSource instagramClientID],
+//                           [self redirectURI]];
 
 //    // add scope to get likes, comments, relationships
 //    NSString* urlString = [NSString stringWithFormat:@"https://instagram.com/oauth/authorize/?client_id=%@&scope=likes+comments+relationships&redirect_uri=%@&response_type=token",
 //                           [DataSource instagramClientID],
 //                           [self redirectURI]];
+    
+    // add public_content to scope
+    NSString* urlString = [NSString stringWithFormat:@"https://instagram.com/oauth/authorize/?client_id=%@&scope=likes+comments+relationships+public_content&redirect_uri=%@&response_type=token",
+                           [DataSource instagramClientID],
+                           [self redirectURI]];
     
     NSURL* url = [NSURL URLWithString:urlString];
     

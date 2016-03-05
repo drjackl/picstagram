@@ -117,20 +117,57 @@
 //                        [self requestNewItemsWithCompletionHandler:nil]; // so far, handler for end refresh
                     } else {
                         [self populateDataWithParameters:nil completionHandler:nil];
-                    }
-                });
-            });
-        }
-    }
+                    } // end else (if storedMediaItems.count > 0)
+                }); // end dispatch_async(dispatch_get_main_queue() ...
+            }); // end dispatch_async(dispatch_get_global_queue(...
+        } // end else (if !self.accessToken)
+    } // end if (self)
+    
     return self;
 }
 
-// creates absolute path
-- (NSString*) pathForFilename:(NSString*)filename {
-    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    NSString* documentsDirectory = [paths firstObject];
-    NSString* dataPath = [documentsDirectory stringByAppendingPathComponent:filename];
-    return dataPath;
+#pragma mark - Comments
+
+- (void)commentOnMediaitem:(Media*)mediaItem withCommentText:(NSString*)commentText {
+    if (!commentText || commentText.length == 0) {
+        return;
+    }
+    
+    NSString* urlString = [NSString stringWithFormat:@"media/%@/comments", mediaItem.idNumber];
+    NSDictionary* parameters = @{@"access_token": self.accessToken, @"text": commentText};
+    
+    [self.instagramOperationManager POST:urlString parameters:parameters success:^(AFHTTPRequestOperation* _Nonnull operation, id  _Nonnull responseObject) {
+        
+        mediaItem.temporaryComment = nil;
+        
+        NSString* refreshMediaURLString = [NSString stringWithFormat:@"media/%@", mediaItem.idNumber];
+        
+        // interesting we're redefining parameters here
+        NSDictionary* parameters = @{@"access_token": self.accessToken};
+        
+        [self.instagramOperationManager GET:refreshMediaURLString parameters:parameters success:^(AFHTTPRequestOperation* _Nonnull operation, id  _Nonnull responseObject) {
+            
+            Media* newMediaitem = [[Media alloc] initWithDictionary:responseObject];
+
+            NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+            NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
+            [mutableArrayWithKVO replaceObjectAtIndex:index withObject:newMediaitem];
+            
+        } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+            [self reloadMediaItem:mediaItem];
+        }];
+        
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        NSLog(@"Error: %@", error);
+        NSLog(@"Response: %@", operation.responseString);
+        [self reloadMediaItem:mediaItem];
+    }];
+}
+
+- (void) reloadMediaItem:(Media*)mediaItem {
+    NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+    NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
+    [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem];
 }
 
 #pragma mark - Liking Media Items
@@ -233,6 +270,11 @@
     
     // only try get data if there's access token
     if (self.accessToken) {
+        NSString* selfRecentPath = @"users/self/media/recent/";
+        //NSString* banksyRecentPath = @"users/banksyny/media/recent/";
+        //NSString* kkRecentPath = @"users/kimkardashian/media/recent/";
+        
+        
         // afnetworking: try to parse data
         NSMutableDictionary* mutableParameters = [@{@"access_token":self.accessToken} mutableCopy];
 
@@ -240,7 +282,7 @@
         [mutableParameters addEntriesFromDictionary:parameters];
         
         // request op gets the resource and if successful, response obj passed to parseData
-        [self.instagramOperationManager GET:@"users/self/media/recent/" // NOT users/self/feed (also for got extra /)
+        [self.instagramOperationManager GET:selfRecentPath // NOT users/self/feed (also for got extra /)
                                  parameters:mutableParameters
                                     success:^(AFHTTPRequestOperation* _Nonnull operation, id  _Nonnull responseObject) {
                                         if ([responseObject isKindOfClass:[NSDictionary class]]) {
@@ -350,6 +392,14 @@
     
     // keychain: write to file when new data arrives
     [self saveImages];
+}
+
+// creates absolute path
+- (NSString*) pathForFilename:(NSString*)filename {
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSString* documentsDirectory = [paths firstObject];
+    NSString* dataPath = [documentsDirectory stringByAppendingPathComponent:filename];
+    return dataPath;
 }
 
 // write changes to disk (if there are items)

@@ -12,8 +12,10 @@
 #import "Comment.h"
 #import "LikeButton.h" // for adding like buttons
 #import "LikeCountLabel.h"
+#import "ComposeCommentView.h" // for compose view
 
-@interface MediaTableViewCell () <UIGestureRecognizerDelegate> // to recognize tap
+// to recognize tap and for compose view
+@interface MediaTableViewCell () <UIGestureRecognizerDelegate, ComposeCommentViewDelegate>
 
 @property (nonatomic) UIImageView* mediaImageView;
 @property (nonatomic) UILabel* usernameAndCaptionLabel;
@@ -35,6 +37,10 @@
 @property (nonatomic) LikeButton* likeButton; // the like button for this cell
 
 @property (nonatomic) LikeCountLabel* likeCountLabel; // like count label for this cell
+
+
+// for compose view, redeclaring as readwrite
+@property (nonatomic) ComposeCommentView* commentView;
 
 @end
 
@@ -65,8 +71,11 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
     [layoutCell setNeedsLayout];
     [layoutCell layoutIfNeeded];
     
-    // height will be bottom of comments label
-    return CGRectGetMaxY(layoutCell.commentLabel.frame);
+//    // height will be bottom of comments label
+//    return CGRectGetMaxY(layoutCell.commentLabel.frame);
+    
+    // height will now be at bottom of comment view
+    return CGRectGetMaxY(layoutCell.commentView.frame);
 }
 
 // special method all objects have called only once before first class use
@@ -134,19 +143,24 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
         
         // like count: 1. create
         self.likeCountLabel = [[LikeCountLabel alloc] initWithCount:self.mediaItem.likeCount];
-        //self.likeCountLabel.text = [NSString stringWithFormat:@"%d", self.mediaItem.likeCount];
+        //self.likeCountLabel.text = [NSString stringWithFormat:@"%d", self.mediaItem.likeCount]; // set in initializer
         self.likeCountLabel.backgroundColor = usernameLabelGray;
         
-        // like button/count 2. add to hierarchy
-        for (UIView* view in @[self.mediaImageView, self.usernameAndCaptionLabel, self.commentLabel, self.likeButton, self.likeCountLabel]) {
+        
+        self.commentView = [[ComposeCommentView alloc] init];
+        self.commentView.delegate = self;
+        
+        
+        // like button/count 2. add to hierarchy (also adding comment view)
+        for (UIView* view in @[self.mediaImageView, self.usernameAndCaptionLabel, self.commentLabel, self.likeButton, self.likeCountLabel, self.commentView]) {
             [self.contentView addSubview:view];
             
             // for auto-layout needs to be set to NO
             view.translatesAutoresizingMaskIntoConstraints = NO;
         }
         
-        // auto-layout: add some constraints (like button/count 3. update constraints)
-        NSDictionary* viewDictionary = NSDictionaryOfVariableBindings(_mediaImageView, _usernameAndCaptionLabel, _commentLabel, _likeButton, _likeCountLabel);
+        // auto-layout: add some constraints (like button/count 3. update constraints) (also adding comment view)
+        NSDictionary* viewDictionary = NSDictionaryOfVariableBindings(_mediaImageView, _usernameAndCaptionLabel, _commentLabel, _likeButton, _likeCountLabel, _commentView);
         
         // visual format begins with H: or V:
         // | is superview, [viewVariable] represents one view
@@ -163,10 +177,20 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_usernameAndCaptionLabel][_likeCountLabel(==25)][_likeButton(==38)]|" options:NSLayoutFormatAlignAllTop | NSLayoutFormatAlignAllBottom metrics:nil views:viewDictionary]];
         
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_commentLabel]|" options:kNilOptions metrics:nil views:viewDictionary]];
+
         
-        // stack 3 views vertically, no space in between
-        // a single | at end caused constraints to not satisfy!
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel]" options:kNilOptions metrics:nil views:viewDictionary]];
+        // comment view horizontal constraint
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_commentView]|" options:kNilOptions metrics:nil views:viewDictionary]];
+        
+        
+//        // pre comment view: stack 3 views vertically, no space in between
+//        // a single | at end caused constraints to not satisfy!
+//        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel]" options:kNilOptions metrics:nil views:viewDictionary]];
+        
+        
+        // include comment view
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel][_commentView(==100)]" options:kNilOptions metrics:nil views:viewDictionary]];
+        
         
         // auto-layout height constraints; each has same arguments except the view item
         // view's initial height of 100 points will be update after content set
@@ -327,6 +351,30 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
     
     // like count
     self.likeCountLabel.likeCount = mediaItem.likeCount;
+    
+    // when cell created or reused, update text on comment view
+    self.commentView.text = mediaItem.temporaryComment;
+}
+
+#pragma mark - ComposeCommentViewDelegate and stopComposingComment
+
+// in this and willStartEditing, cell tells delegate
+- (void) commentViewDidPressCommentButton:(ComposeCommentView *)sender {
+    [self.delegate cell:self didComposeComment:self.mediaItem.temporaryComment];
+}
+
+// store text written so far so user can scroll up and down table
+- (void) commentView:(ComposeCommentView *)sender textDidChange:(NSString *)text {
+    self.mediaItem.temporaryComment = text;
+}
+
+- (void) commentViewWillStartEditing:(ComposeCommentView *)sender {
+    [self.delegate cellWillStartComposingComment:self];
+}
+
+// if another object tells cell to stop, message passed to comment view so cell's VC can dismiss keyboard
+- (void) stopComposingComment {
+    [self.commentView stopComposingComment];
 }
 
 #pragma mark - Attributed String
@@ -343,6 +391,8 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
         [[NSMutableAttributedString alloc] initWithString:baseString
                                                attributes:@{NSFontAttributeName : [lightFont fontWithSize:usernameFontSize],
                                                             NSParagraphStyleAttributeName : paragraphStyle}];
+    
+    // one of these range methods is fucking up (first one)
     
     // bold and purple the username
     NSRange usernameRange = [baseString rangeOfString:self.mediaItem.user.userName];

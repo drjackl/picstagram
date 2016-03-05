@@ -45,6 +45,9 @@ typedef NS_ENUM(NSInteger, MediaDownloadState) {
 @property (nonatomic) int likeCount;
 
 
+@property (nonatomic) NSString* temporaryComment; // for comment view
+
+
 - (instancetype) initWithDictionary:(NSDictionary*)mediaDictionary;
 
 - (void) shareGivenViewController:(UIViewController*)viewController;
