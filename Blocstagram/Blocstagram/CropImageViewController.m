@@ -16,6 +16,10 @@
 @property (nonatomic) CropBox* cropBox;
 @property (nonatomic) BOOL hasLoadedOnce;
 
+// toolbars for translucency just like camera VC
+@property (nonatomic) UIToolbar* topView;
+@property (nonatomic) UIToolbar* bottomView;
+
 @end
 
 @implementation CropImageViewController
@@ -51,6 +55,19 @@
     self.automaticallyAdjustsScrollViewInsets = NO;
     
     self.view.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1];
+    
+    
+    // adding toolbars for translucency
+    self.topView = [UIToolbar new];
+    self.bottomView = [UIToolbar new];
+    UIColor* whiteBG = [UIColor colorWithWhite:1.0 alpha:0.15];
+    self.topView.barTintColor = whiteBG;
+    self.bottomView.barTintColor = whiteBG;
+    self.topView.alpha = 0.5;
+    self.bottomView.alpha = 0.5;
+    
+    [self.view addSubview:self.topView];
+    [self.view addSubview:self.bottomView];
 }
 
 // only lay out views we've added, cropbox, and how it affects other views
@@ -83,6 +100,18 @@
         self.scrollView.zoomScale = self.scrollView.minimumZoomScale;
         self.hasLoadedOnce = YES;
     }
+    
+    
+    // adding toolbars for translucency (CameraVC calculated differently, so ...)
+    CGFloat length = CGRectGetWidth(self.view.bounds);
+    
+    CGFloat yOriginOfBottomView = CGRectGetMaxY(self.cropBox.frame);
+    CGFloat yMaxOfSelfView = CGRectGetHeight(self.view.bounds);
+    CGFloat heightOfBottomView = yMaxOfSelfView - yOriginOfBottomView;
+    self.bottomView.frame = CGRectMake(0, yOriginOfBottomView, length, heightOfBottomView);
+    
+    CGFloat heightOfTopView = yMaxOfSelfView - heightOfBottomView - length;
+    self.topView.frame = CGRectMake(0, 0, length, heightOfTopView);
 }
 
 // target method of crop button, create rect based on scroll view's location

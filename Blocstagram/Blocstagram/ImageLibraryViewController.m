@@ -50,15 +50,15 @@
 - (void) viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     
-    CGFloat width = CGRectGetHeight(self.view.frame);
-    CGFloat minWidth = 100; // won't go below 100 points
+    CGFloat width = CGRectGetWidth(self.view.frame); // oops was getting height, which was giving margins!
+    CGFloat minWidth = 80; // won't go below 100 points
     NSInteger divisor = width / minWidth;
-    CGFloat cellSize = width / divisor;
+    CGFloat cellSize = width / divisor - 1; // width / (width / minWidth) == minWidth?
     
     UICollectionViewFlowLayout* flowLayout = (UICollectionViewFlowLayout*)self.collectionViewLayout;
     flowLayout.itemSize = CGSizeMake(cellSize, cellSize);
-    flowLayout.minimumInteritemSpacing = 0; // no spacing between cells
-    flowLayout.minimumLineSpacing = 0;
+    flowLayout.minimumInteritemSpacing = 1;
+    flowLayout.minimumLineSpacing = 1; // originally, no (0) spacing between cells
 }
 
 // private method for loading assets
