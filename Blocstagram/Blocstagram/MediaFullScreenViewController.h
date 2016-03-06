@@ -15,8 +15,14 @@
 @property (nonatomic) UIScrollView* scrollView;
 @property (nonatomic) UIImageView* imageView;
 
+// moved out of extension for photos to prep for being subclassed
+@property (nonatomic) Media* media;
+
+
 - (instancetype) initWithMedia:(Media*)media; // like past custom initialzers
 
 - (void) centerScrollView; // explained later
+
+- (void) recalculateZoomScale; // created to prep for being subclassed for photos
 
 @end

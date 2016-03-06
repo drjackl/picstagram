@@ -11,8 +11,6 @@
 
 @interface MediaFullScreenViewController () <UIScrollViewDelegate> // protocol
 
-@property (nonatomic) Media* media;
-
 // for letting user dismiss VC by tapping out and alternative zooming
 @property (nonatomic) UITapGestureRecognizer* tap;
 @property (nonatomic) UITapGestureRecognizer* doubleTap;
@@ -82,20 +80,31 @@
 - (void) viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     
-    // share button: account for putting it on top right
-    //CGFloat buttonHeight = CGRectGetHeight(self.shareButton.bounds); // can't do this cuz height is not given yet
-    CGFloat buttonHeight = 30;
-    
-    
     // sets scroll view to take up all of view's space
     self.scrollView.frame = self.view.bounds;
     
+    // refactored out below to prep for subclassing for photos
+    [self recalculateZoomScale];
+}
+
+// used to be bottom part of viewWillLayoutSubviews
+- (void) recalculateZoomScale {
+    // share button: account for putting it on top right
+    //CGFloat buttonHeight = CGRectGetHeight(self.shareButton.bounds); // can't do this cuz height is not given yet
+    CGFloat buttonHeight = 30;
+
 //    // calculating to allow for button on top
 //    self.scrollView.frame = CGRectMake(0, buttonHeight, CGRectGetWidth(self.view.bounds), CGRectGetHeight(self.view.bounds)-buttonHeight);
     
     // 2 ratios: scroll view w : image w and scroll view h : image h
     CGSize scrollViewFrameSize = self.scrollView.frame.size;
     CGSize scrollViewContentSize = self.scrollView.contentSize;
+    
+    
+    // prep for subclass for photos: added in
+    scrollViewContentSize.height /= self.scrollView.zoomScale;
+    scrollViewContentSize.width /= self.scrollView.zoomScale;
+    
     
     // smaller of two ratios set as min so can't pinch too small
     CGFloat scaleWidth = scrollViewFrameSize.width / scrollViewContentSize.width;

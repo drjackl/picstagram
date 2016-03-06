@@ -10,8 +10,11 @@
 #import <AVFoundation/AVFoundation.h> // new powerful framework
 #import "CameraToolbar.h" // toolbar we made
 #import "UIImage+ImageUtilities.h" // for image rotations, cropping
+#import "CropBox.h" // refactored out since duplicating in photos view
+#import "ImageLibraryViewController.h"
 
-@interface CameraViewController () <CameraToolbarDelegate>
+// add photo delegate
+@interface CameraViewController () <CameraToolbarDelegate, ImageLibraryViewControllerDelegate>
 
 @property (nonatomic) UIView* imagePreview; // shows user image from camera
 
@@ -26,13 +29,14 @@
 @property (nonatomic) AVCaptureStillImageOutput* stillImageOutput;
 
 
-// lines are thin, white UIViews for 3x3 grid over photo capture area
-@property (nonatomic) NSArray* horizontalLines;
-@property (nonatomic) NSArray* verticalLines;
+// (now in CropBox) lines are thin, white UIViews for 3x3 grid over photo capture area
 
 // usually for displaying small buttons, but here just using unique translucency
 @property (nonatomic) UIToolbar* topView;
 @property (nonatomic) UIToolbar* bottomView;
+
+// used to have two arrays, but now factored out since share code with photos
+@property (nonatomic) CropBox* cropBox;
 
 // the view we created (camera toolbar)
 @property (nonatomic) CameraToolbar* cameraToolbar;
@@ -56,6 +60,9 @@
     self.imagePreview = [UIView new];
     self.topView = [UIToolbar new];
     self.bottomView = [UIToolbar new];
+    
+    self.cropBox = [CropBox new];
+    
     self.cameraToolbar = [[CameraToolbar alloc] initWithImageNames:@[@"rotate", @"road"]];
     self.cameraToolbar.delegate = self;
     UIColor* whiteBG = [UIColor colorWithWhite:1.0 alpha:.15];
@@ -67,9 +74,8 @@
 
 // order is important
 - (void) addViewsToViewHierarchy {
-    NSMutableArray* views = [@[self.imagePreview, self.topView, self.bottomView] mutableCopy];
-    [views addObjectsFromArray:self.horizontalLines];
-    [views addObjectsFromArray:self.verticalLines];
+    NSMutableArray* views = [@[self.imagePreview, self.cropBox, self.topView, self.bottomView] mutableCopy];
+    // added cropBox, took out lines
     [views addObject:self.cameraToolbar];
     
     for (UIView* view in views) {
@@ -77,32 +83,8 @@
     }
 }
 
-// nil so override getters with some white views
-- (NSArray*) horizontalLines {
-    if (!_horizontalLines) {
-        _horizontalLines = [self newArrayOfFourWhiteViews];
-    }
-    return _horizontalLines;
-}
+// (no more lines, refactored out) nil so override getters with some white views
 
-- (NSArray*) verticalLines {
-    if (!_verticalLines) {
-        _verticalLines = [self newArrayOfFourWhiteViews];
-    }
-    return _verticalLines;
-}
-
-- (NSArray*) newArrayOfFourWhiteViews {
-    NSMutableArray* array = [NSMutableArray array];
-    
-    for (int i = 0; i < 4; i++) {
-        UIView* view = [UIView new];
-        view.backgroundColor = [UIColor whiteColor];
-        [array addObject:view];
-    }
-    
-    return array;
-}
 
 - (void) setupImageCapture {
     // #1 create a capture session which mediates between camera and output layer
@@ -203,16 +185,10 @@
             // #11 fix image's orientation and resize it (two methods in convenience method now)
             
             // #12 calculate center of white square's rect and pass for final crop
-            UIView* leftLine = self.verticalLines.firstObject;
-            UIView* rightLine = self.verticalLines.lastObject;
-            UIView* topLine = self.horizontalLines.firstObject;
-            UIView* bottomLine = self.horizontalLines.lastObject;
             
-            // don't get this setup, especially last two
-            CGRect gridRect = CGRectMake(CGRectGetMinX(leftLine.frame),
-                                         CGRectGetMinY(topLine.frame),
-                                         CGRectGetMaxX(rightLine.frame),
-                                         CGRectGetMinY(bottomLine.frame));
+            // (didn't get this gridRect setup, especially last two)
+
+            CGRect gridRect = self.cropBox.frame;
             
             CGRect cropRect = gridRect;
             cropRect.origin.x = (CGRectGetMinX(gridRect) +
@@ -283,23 +259,8 @@
     self.bottomView.frame = CGRectMake(0, yOriginOfBottomView, width, heightOfBottomView);
     
     
-    // 2. 3x3 white lines
-    CGFloat thirdOfWidth = width / 3;
-    
-    for (int i = 0; i < 4; i++) {
-        UIView* horizontalLine = self.horizontalLines[i];
-        UIView* verticalLine = self.verticalLines[i];
-        
-        horizontalLine.frame = CGRectMake(0, (i * thirdOfWidth) + CGRectGetMaxY(self.topView.frame), width, 0.5);
-        
-        CGRect verticalFrame = CGRectMake(i * thirdOfWidth, CGRectGetMaxY(self.topView.frame), 0.5, width);
-        
-        if (i == 3) {
-            verticalFrame.origin.x -= 0.5;
-        }
-        
-        verticalLine.frame = verticalFrame;
-    }
+    // 2. 3x3 white lines (now just position cropBox)
+    self.cropBox.frame = CGRectMake(0, CGRectGetMaxY(self.topView.frame), width, width);
     
     // 3. these fill VC's primary view
     self.imagePreview.frame = self.view.bounds;
@@ -355,7 +316,14 @@
 }
 
 - (void) rightButtonPressedOnToolbar:(CameraToolbar *)toolbar {
-    NSLog(@"Photo library button pressed");
+    ImageLibraryViewController* imageLibraryVC = [[ImageLibraryViewController alloc] init];
+    imageLibraryVC.delegate = self;
+    [self.navigationController pushViewController:imageLibraryVC animated:YES];
+}
+
+#pragma mark - ImageLibraryViewControllerDelegate
+- (void) imageLibraryViewController:(ImageLibraryViewController*)imageLibraryViewController didCompleteWithImage:(UIImage*)image {
+    [self.delegate cameraViewController:self didCompleteWithImage:image];
 }
 
 /*

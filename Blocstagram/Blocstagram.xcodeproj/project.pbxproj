@@ -35,6 +35,9 @@
 		04F30D851C8ABCFD004EE4CC /* CameraToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D841C8ABCFD004EE4CC /* CameraToolbar.m */; };
 		04F30D881C8B263E004EE4CC /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D871C8B263E004EE4CC /* CameraViewController.m */; };
 		04F30D8B1C8B4FB1004EE4CC /* UIImage+ImageUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D8A1C8B4FB1004EE4CC /* UIImage+ImageUtilities.m */; };
+		04F30D8E1C8B91D3004EE4CC /* CropBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D8D1C8B91D3004EE4CC /* CropBox.m */; };
+		04F30D911C8B9A0E004EE4CC /* CropImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D901C8B9A0E004EE4CC /* CropImageViewController.m */; };
+		04F30D941C8BB0F5004EE4CC /* ImageLibraryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D931C8BB0F5004EE4CC /* ImageLibraryViewController.m */; };
 		04F728C21C88F05300BEBE44 /* LikeButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C11C88F05300BEBE44 /* LikeButton.m */; };
 		04F728C51C89494000BEBE44 /* LikeCountLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C41C89494000BEBE44 /* LikeCountLabel.m */; };
 		04F728C81C896DEF00BEBE44 /* ComposeCommentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C71C896DEF00BEBE44 /* ComposeCommentView.m */; };
@@ -106,6 +109,12 @@
 		04F30D871C8B263E004EE4CC /* CameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraViewController.m; sourceTree = "<group>"; };
 		04F30D891C8B4FB1004EE4CC /* UIImage+ImageUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageUtilities.h"; sourceTree = "<group>"; };
 		04F30D8A1C8B4FB1004EE4CC /* UIImage+ImageUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageUtilities.m"; sourceTree = "<group>"; };
+		04F30D8C1C8B91D3004EE4CC /* CropBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CropBox.h; sourceTree = "<group>"; };
+		04F30D8D1C8B91D3004EE4CC /* CropBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CropBox.m; sourceTree = "<group>"; };
+		04F30D8F1C8B9A0E004EE4CC /* CropImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CropImageViewController.h; sourceTree = "<group>"; };
+		04F30D901C8B9A0E004EE4CC /* CropImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CropImageViewController.m; sourceTree = "<group>"; };
+		04F30D921C8BB0F5004EE4CC /* ImageLibraryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageLibraryViewController.h; sourceTree = "<group>"; };
+		04F30D931C8BB0F5004EE4CC /* ImageLibraryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageLibraryViewController.m; sourceTree = "<group>"; };
 		04F728C01C88F05300BEBE44 /* LikeButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LikeButton.h; sourceTree = "<group>"; };
 		04F728C11C88F05300BEBE44 /* LikeButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LikeButton.m; sourceTree = "<group>"; };
 		04F728C31C89494000BEBE44 /* LikeCountLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LikeCountLabel.h; sourceTree = "<group>"; };
@@ -179,6 +188,10 @@
 				0421A5AF1C87A38800E45B71 /* MediaFullScreenViewController.m */,
 				04F30D861C8B263E004EE4CC /* CameraViewController.h */,
 				04F30D871C8B263E004EE4CC /* CameraViewController.m */,
+				04F30D8F1C8B9A0E004EE4CC /* CropImageViewController.h */,
+				04F30D901C8B9A0E004EE4CC /* CropImageViewController.m */,
+				04F30D921C8BB0F5004EE4CC /* ImageLibraryViewController.h */,
+				04F30D931C8BB0F5004EE4CC /* ImageLibraryViewController.m */,
 				04B572B21C838DAB00BFF958 /* MediaTableViewCell.h */,
 				04B572B31C838DAB00BFF958 /* MediaTableViewCell.m */,
 				0421A5B11C88E01700E45B71 /* CircleSpinnerView.h */,
@@ -193,6 +206,8 @@
 				04F30D841C8ABCFD004EE4CC /* CameraToolbar.m */,
 				04F30D891C8B4FB1004EE4CC /* UIImage+ImageUtilities.h */,
 				04F30D8A1C8B4FB1004EE4CC /* UIImage+ImageUtilities.m */,
+				04F30D8C1C8B91D3004EE4CC /* CropBox.h */,
+				04F30D8D1C8B91D3004EE4CC /* CropBox.m */,
 				04B572A61C835C8F00BFF958 /* User.h */,
 				04B572A71C835C8F00BFF958 /* User.m */,
 				04B572A91C835D8F00BFF958 /* Media.h */,
@@ -460,17 +475,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				0421A5B01C87A38800E45B71 /* MediaFullScreenViewController.m in Sources */,
+				04F30D911C8B9A0E004EE4CC /* CropImageViewController.m in Sources */,
 				04B572AE1C835FEA00BFF958 /* Comment.m in Sources */,
 				04B572AB1C835D8F00BFF958 /* Media.m in Sources */,
 				04B572B41C838DAB00BFF958 /* MediaTableViewCell.m in Sources */,
 				04B572B11C83614800BFF958 /* DataSource.m in Sources */,
 				04B572A81C835C8F00BFF958 /* User.m in Sources */,
 				04B572B71C860D2B00BFF958 /* LoginViewController.m in Sources */,
+				04F30D8E1C8B91D3004EE4CC /* CropBox.m in Sources */,
 				04B5725D1C82C60A00BFF958 /* AppDelegate.m in Sources */,
 				04F728C21C88F05300BEBE44 /* LikeButton.m in Sources */,
 				04F30D881C8B263E004EE4CC /* CameraViewController.m in Sources */,
 				04F30D851C8ABCFD004EE4CC /* CameraToolbar.m in Sources */,
 				04F728C51C89494000BEBE44 /* LikeCountLabel.m in Sources */,
+				04F30D941C8BB0F5004EE4CC /* ImageLibraryViewController.m in Sources */,
 				04B5725A1C82C60A00BFF958 /* main.m in Sources */,
 				04F30D8B1C8B4FB1004EE4CC /* UIImage+ImageUtilities.m in Sources */,
 				04F728C81C896DEF00BEBE44 /* ComposeCommentView.m in Sources */,
