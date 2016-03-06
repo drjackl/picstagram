@@ -15,6 +15,7 @@
 #import "MediaFullScreenViewController.h" // for tap image fullscreens it
 #import "CameraViewController.h"
 #import "ImageLibraryViewController.h" // for photos
+#import "PostToInstagramViewController.h" // for posting
 
 // for fullscreen and camera VCs
 @interface ImagesTableViewController () <MediaTableViewCellDelegate, CameraViewControllerDelegate, ImageLibraryViewControllerDelegate>
@@ -147,23 +148,27 @@
     }
 }
 
+- (void) handleImage:(UIImage*)image withNavigationController:(UINavigationController*)nav {
+    if (image) {
+        PostToInstagramViewController* postVC = [[PostToInstagramViewController alloc] initWithImage:image];
+        [nav pushViewController:postVC animated:YES]; // somehow this isn't getting pushed, also some internal inconsistency with collection view of filters (no added filters should at least have one none filter)
+    } else {
+        [nav dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
+
 - (void) cameraViewController:(CameraViewController*)cameraViewController didCompleteWithImage:(UIImage*)image {
     [cameraViewController dismissViewControllerAnimated:YES completion:^{
-        if (image) {
-            NSLog(@"Got an image!");
-        } else {
-            NSLog(@"Closed without an image");
-        }
+        // used to just simply print a message whether or not there was a message
+        [self handleImage:image withNavigationController:cameraViewController.navigationController];
     }];
 }
 
 - (void) imageLibraryViewController:(ImageLibraryViewController*)imageLibraryViewController didCompleteWithImage:(UIImage*)image {
     [imageLibraryViewController dismissViewControllerAnimated:YES completion:^{
-        if (image) {
-            NSLog(@"Got an image!");
-        } else {
-            NSLog(@"Closed without an image");
-        }
+        // used to just simply print a message whether or not there was a message
+        [self handleImage:image withNavigationController:imageLibraryViewController.navigationController];
     }];
 }
 

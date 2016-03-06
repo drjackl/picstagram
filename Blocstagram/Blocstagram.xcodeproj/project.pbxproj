@@ -38,6 +38,7 @@
 		04F30D8E1C8B91D3004EE4CC /* CropBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D8D1C8B91D3004EE4CC /* CropBox.m */; };
 		04F30D911C8B9A0E004EE4CC /* CropImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D901C8B9A0E004EE4CC /* CropImageViewController.m */; };
 		04F30D941C8BB0F5004EE4CC /* ImageLibraryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D931C8BB0F5004EE4CC /* ImageLibraryViewController.m */; };
+		04F30D971C8BE921004EE4CC /* PostToInstagramViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D961C8BE921004EE4CC /* PostToInstagramViewController.m */; };
 		04F728C21C88F05300BEBE44 /* LikeButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C11C88F05300BEBE44 /* LikeButton.m */; };
 		04F728C51C89494000BEBE44 /* LikeCountLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C41C89494000BEBE44 /* LikeCountLabel.m */; };
 		04F728C81C896DEF00BEBE44 /* ComposeCommentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C71C896DEF00BEBE44 /* ComposeCommentView.m */; };
@@ -115,6 +116,8 @@
 		04F30D901C8B9A0E004EE4CC /* CropImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CropImageViewController.m; sourceTree = "<group>"; };
 		04F30D921C8BB0F5004EE4CC /* ImageLibraryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageLibraryViewController.h; sourceTree = "<group>"; };
 		04F30D931C8BB0F5004EE4CC /* ImageLibraryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageLibraryViewController.m; sourceTree = "<group>"; };
+		04F30D951C8BE921004EE4CC /* PostToInstagramViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostToInstagramViewController.h; sourceTree = "<group>"; };
+		04F30D961C8BE921004EE4CC /* PostToInstagramViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostToInstagramViewController.m; sourceTree = "<group>"; };
 		04F728C01C88F05300BEBE44 /* LikeButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LikeButton.h; sourceTree = "<group>"; };
 		04F728C11C88F05300BEBE44 /* LikeButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LikeButton.m; sourceTree = "<group>"; };
 		04F728C31C89494000BEBE44 /* LikeCountLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LikeCountLabel.h; sourceTree = "<group>"; };
@@ -192,6 +195,8 @@
 				04F30D901C8B9A0E004EE4CC /* CropImageViewController.m */,
 				04F30D921C8BB0F5004EE4CC /* ImageLibraryViewController.h */,
 				04F30D931C8BB0F5004EE4CC /* ImageLibraryViewController.m */,
+				04F30D951C8BE921004EE4CC /* PostToInstagramViewController.h */,
+				04F30D961C8BE921004EE4CC /* PostToInstagramViewController.m */,
 				04B572B21C838DAB00BFF958 /* MediaTableViewCell.h */,
 				04B572B31C838DAB00BFF958 /* MediaTableViewCell.m */,
 				0421A5B11C88E01700E45B71 /* CircleSpinnerView.h */,
@@ -488,6 +493,7 @@
 				04F30D881C8B263E004EE4CC /* CameraViewController.m in Sources */,
 				04F30D851C8ABCFD004EE4CC /* CameraToolbar.m in Sources */,
 				04F728C51C89494000BEBE44 /* LikeCountLabel.m in Sources */,
+				04F30D971C8BE921004EE4CC /* PostToInstagramViewController.m in Sources */,
 				04F30D941C8BB0F5004EE4CC /* ImageLibraryViewController.m in Sources */,
 				04B5725A1C82C60A00BFF958 /* main.m in Sources */,
 				04F30D8B1C8B4FB1004EE4CC /* UIImage+ImageUtilities.m in Sources */,
