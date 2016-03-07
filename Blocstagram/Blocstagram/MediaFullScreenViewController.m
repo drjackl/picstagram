@@ -9,13 +9,16 @@
 #import "MediaFullScreenViewController.h"
 #import "Media.h" // can't rely on @class declaration in .h
 
-@interface MediaFullScreenViewController () <UIScrollViewDelegate> // protocol
+@interface MediaFullScreenViewController () <UIScrollViewDelegate, UIGestureRecognizerDelegate> // protocol
 
 // for letting user dismiss VC by tapping out and alternative zooming
 @property (nonatomic) UITapGestureRecognizer* tap;
 @property (nonatomic) UITapGestureRecognizer* doubleTap;
 
 @property (nonatomic) UIButton* shareButton;
+
+@property (nonatomic) UITapGestureRecognizer* tap2;
+@property (nonatomic) UITapGestureRecognizer* recognizer;
 
 @end
 
@@ -75,6 +78,63 @@
     
     [self.scrollView addGestureRecognizer:self.tap];
     [self.scrollView addGestureRecognizer:self.doubleTap];
+    
+    // SO, others, and me tried adding recognizer here and nothing happened (probably only pre-iOS 9)
+}
+
+- (void) viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    self.recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapBehind:)];
+    self.recognizer.delegate = self;
+    //[self.recognizer setNumberOfTapsRequired:1];
+    
+    // ok so commenting this out fixed it! crop VC doesn't dismiss right away (and no runtime error after)
+    //self.recognizer.cancelsTouchesInView = NO; //So the user can still interact with controls in the modal view
+    
+    [self.view.window addGestureRecognizer:self.recognizer];
+}
+
+// assume this is necessary too (from iOS9 swift link)
+- (void) viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    [self.view.window removeGestureRecognizer:self.recognizer];
+}
+
+
+// SO code
+- (void)handleTapBehind:(UITapGestureRecognizer *)sender
+{
+    NSLog(@"Tap Behind called");
+    [self dismissViewControllerAnimated:YES completion:nil];
+//    if (sender.state == UIGestureRecognizerStateEnded)
+//    {
+//        CGPoint location = [sender locationInView:nil]; //Passing nil gives us coordinates in the window
+//        
+//        //Then we convert the tap's location into the local view's coordinate system, and test to see if it's in or outside. If outside, dismiss the view.
+//        
+//        if (![self.view pointInside:[self.view convertPoint:location fromView:self.view.window] withEvent:nil])
+//        {
+//            // Remove the recognizer first so it's view.window is valid.
+//            [self.view.window removeGestureRecognizer:sender];
+//            //[self dismissModalViewControllerAnimated:YES];
+//            [self dismissViewControllerAnimated:YES completion:nil];
+//        }
+//    }
+}
+
+// delegate methods required for recognized gray background window taps
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    return YES;
 }
 
 - (void) viewWillLayoutSubviews {

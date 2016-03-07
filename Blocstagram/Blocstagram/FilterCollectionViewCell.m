@@ -24,8 +24,11 @@ static UIFont* labelFont;
     labelFont = [UIFont fontWithName:@"HelveticaNeue-Medium" size:10];
 }
 
-- (instancetype) init {
-    self = [super init];
+// init method never gets called! must call initWithFrame:
+
+// use ViewCell's initWithFrame: to initialize, though subviews don't need that
+- (instancetype) initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
     if (self) {
         self.thumbnail = [[UIImageView alloc] init];
         self.thumbnail.clipsToBounds = YES;
@@ -43,6 +46,14 @@ static UIFont* labelFont;
     return self;
 }
 
+- (instancetype) initWithCoder:(NSCoder *)coder {
+    self = [super initWithCoder:coder];
+    if (self) {
+        NSLog(@"initCoder called");
+    }
+    return self;
+}
+
 - (void) layoutSubviews {
     NSLog(@"content view bounds: %@", NSStringFromCGRect(self.contentView.bounds));
     
@@ -53,6 +64,7 @@ static UIFont* labelFont;
     CGFloat width = CGRectGetHeight(self.contentView.bounds) - 20;
     NSLog(@"get height: %f", CGRectGetHeight(self.contentView.bounds));
     NSLog(@"width: %f", width);
+    
     self.thumbnail.frame = CGRectMake(0, 0, width, width);
     self.label.frame = CGRectMake(0, width, width, 20);
     

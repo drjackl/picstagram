@@ -96,8 +96,8 @@
         self.navigationItem.rightBarButtonItem = self.sendBarButton;
     }
     
-    [self.filterCollectionView registerClass:[UICollectionViewCell class]forCellWithReuseIdentifier:@"cell"]; // original cell
-    //[self.filterCollectionView registerClass:[FilterCollectionViewCell class] forCellWithReuseIdentifier:@"filterCell"]; // custom cell
+    //[self.filterCollectionView registerClass:[UICollectionViewCell class]forCellWithReuseIdentifier:@"cell"]; // original cell
+    [self.filterCollectionView registerClass:[FilterCollectionViewCell class] forCellWithReuseIdentifier:@"filterCell"]; // custom cell
     
     self.view.backgroundColor = [UIColor whiteColor];
     self.filterCollectionView.backgroundColor = [UIColor whiteColor];
@@ -219,45 +219,45 @@
 
 // when cell loads, make sure there's image view and label on it, and set content
 - (UICollectionViewCell*) collectionView:(UICollectionView*)collectionView cellForItemAtIndexPath:(NSIndexPath*)indexPath {
-    UICollectionViewCell* cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath]; // original cell
-    //FilterCollectionViewCell* cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"filterCell" forIndexPath:indexPath]; // custom cell
+    //UICollectionViewCell* cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath]; // original cell
+    FilterCollectionViewCell* cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"filterCell" forIndexPath:indexPath]; // custom cell
     
-    // original cell creation/assignment
-    static NSInteger imageViewTag = 1000;
-    static NSInteger labelTag = 1001;
-    
-    UIImageView* thumbnail = (UIImageView*)[cell.contentView viewWithTag:imageViewTag];
-    UILabel* label = (UILabel*)[cell.contentView viewWithTag:labelTag];
-    
-    UICollectionViewFlowLayout* flowLayout = (UICollectionViewFlowLayout*)self.filterCollectionView.collectionViewLayout;
-    CGFloat thumbnailEdgeSize = flowLayout.itemSize.width;
-
-    // frames of items based on flow layout's itemSize property (set earlier in viewWillLayoutSubviews
-    
-    if (!thumbnail) {
-        thumbnail = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, thumbnailEdgeSize, thumbnailEdgeSize)];
-        thumbnail.contentMode = UIViewContentModeScaleAspectFill;
-        thumbnail.tag = imageViewTag;
-        thumbnail.clipsToBounds = YES;
-        
-        [cell.contentView addSubview:thumbnail];
-    }
-    
-    if (!label) {
-        label = [[UILabel alloc] initWithFrame:CGRectMake(0, thumbnailEdgeSize, thumbnailEdgeSize, 20)];
-        label.tag = labelTag;
-        label.textAlignment = NSTextAlignmentCenter;
-        label.font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:10];
-        [cell.contentView addSubview:label];
-    }
-    
-    thumbnail.image = self.filterImages[indexPath.row];
-    label.text = self.filterTitles[indexPath.row];
+//    // original cell creation/assignment
+//    static NSInteger imageViewTag = 1000;
+//    static NSInteger labelTag = 1001;
+//    
+//    UIImageView* thumbnail = (UIImageView*)[cell.contentView viewWithTag:imageViewTag];
+//    UILabel* label = (UILabel*)[cell.contentView viewWithTag:labelTag];
+//    
+//    UICollectionViewFlowLayout* flowLayout = (UICollectionViewFlowLayout*)self.filterCollectionView.collectionViewLayout;
+//    CGFloat thumbnailEdgeSize = flowLayout.itemSize.width;
+//
+//    // frames of items based on flow layout's itemSize property (set earlier in viewWillLayoutSubviews
+//    
+//    if (!thumbnail) {
+//        thumbnail = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, thumbnailEdgeSize, thumbnailEdgeSize)];
+//        thumbnail.contentMode = UIViewContentModeScaleAspectFill;
+//        thumbnail.tag = imageViewTag;
+//        thumbnail.clipsToBounds = YES;
+//        
+//        [cell.contentView addSubview:thumbnail];
+//    }
+//    
+//    if (!label) {
+//        label = [[UILabel alloc] initWithFrame:CGRectMake(0, thumbnailEdgeSize, thumbnailEdgeSize, 20)];
+//        label.tag = labelTag;
+//        label.textAlignment = NSTextAlignmentCenter;
+//        label.font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:10];
+//        [cell.contentView addSubview:label];
+//    }
+//    
+//    thumbnail.image = self.filterImages[indexPath.row];
+//    label.text = self.filterTitles[indexPath.row];
     // end original cell creation/assignment
     
 //    // custom cells
-//    cell.image = self.filterImages[indexPath.row];
-//    cell.title = self.filterTitles[indexPath.row];
+    cell.image = self.filterImages[indexPath.row];
+    cell.title = self.filterTitles[indexPath.row];
     
     return cell;
 }
