@@ -71,6 +71,9 @@
     
     // result of fetch assigned to self.result
     self.result = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:options];
+    
+    // iPad: the collection view data source methods may now be called before viewWillAppear: so reload data after assets are loaded
+    [self.collectionView reloadData];
 }
 
 - (void) viewWillAppear:(BOOL)animated {
@@ -81,7 +84,9 @@
             if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self loadAssets];
-                    [self.collectionView reloadData];
+                    
+                    // for iPad popovers: moved to loadAssets
+                    //[self.collectionView reloadData];
                 });
             } // end if authorizationStatus == Authorized
         }]; // end requestAuthorization

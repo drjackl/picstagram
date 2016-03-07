@@ -144,6 +144,12 @@
     
     if (imageVC) {
         UINavigationController* nav = [[UINavigationController alloc] initWithRootViewController:imageVC];
+        
+        // for iPad: popover is common tool in horizontally regular environments
+        nav.modalPresentationStyle = UIModalPresentationPopover;
+        UIPopoverPresentationController* popoverController = nav.popoverPresentationController;
+        popoverController.barButtonItem = sender;
+        
         [self presentViewController:nav animated:YES completion:nil];
     }
 }
@@ -371,6 +377,11 @@
 
 - (void) cell:(MediaTableViewCell*)cell didTapImageView:(UIImageView*)imageView {
     MediaFullScreenViewController* fullScreenVC = [[MediaFullScreenViewController alloc] initWithMedia:cell.mediaItem];
+    
+    // for iPad: use form sheet view
+    if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular) {
+        fullScreenVC.modalPresentationStyle = UIModalPresentationFormSheet;
+    }
     
     [self presentViewController:fullScreenVC animated:YES completion:nil];
 }
