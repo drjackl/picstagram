@@ -7,6 +7,7 @@
 //
 
 #import "PostToInstagramViewController.h"
+#import "FilterCollectionViewCell.h" // for custom cell
 
 @interface PostToInstagramViewController () <UICollectionViewDataSource, UICollectionViewDelegate, UIDocumentInteractionControllerDelegate>
 
@@ -95,7 +96,8 @@
         self.navigationItem.rightBarButtonItem = self.sendBarButton;
     }
     
-    [self.filterCollectionView registerClass:[UICollectionViewCell class]forCellWithReuseIdentifier:@"cell"];
+    //[self.filterCollectionView registerClass:[UICollectionViewCell class]forCellWithReuseIdentifier:@"cell"]; // original cell
+    [self.filterCollectionView registerClass:[FilterCollectionViewCell class] forCellWithReuseIdentifier:@"filterCell"]; // custom cell
     
     self.view.backgroundColor = [UIColor whiteColor];
     self.filterCollectionView.backgroundColor = [UIColor whiteColor];
@@ -153,7 +155,7 @@
             [self sendImageToInstagramWithCaption:textField.text];
         }]];
     } else { // IG not installed
-        alertVC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"No Instagram App", "no instagram app installed title") message:NSLocalizedString(@"Add a caption and send your image in the Instagram app.", @"send image instructions") preferredStyle:UIAlertControllerStyleAlert];
+        alertVC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"No Instagram App", "no instagram app installed title") message:NSLocalizedString(@"Install Instagram to use this feature", @"install instagram instructions") preferredStyle:UIAlertControllerStyleAlert];
         
         [alertVC addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK button") style:UIAlertActionStyleCancel handler:nil]];
         
@@ -212,38 +214,45 @@
 
 // when cell loads, make sure there's image view and label on it, and set content
 - (UICollectionViewCell*) collectionView:(UICollectionView*)collectionView cellForItemAtIndexPath:(NSIndexPath*)indexPath {
-    UICollectionViewCell* cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath];
+    //UICollectionViewCell* cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath]; // original cell
+    FilterCollectionViewCell* cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"filterCell" forIndexPath:indexPath]; // custom cell
     
-    static NSInteger imageViewTag = 1000;
-    static NSInteger labelTag = 1001;
+//    // original cell creation/assignment
+//    static NSInteger imageViewTag = 1000;
+//    static NSInteger labelTag = 1001;
+//    
+//    UIImageView* thumbnail = (UIImageView*)[cell.contentView viewWithTag:imageViewTag];
+//    UILabel* label = (UILabel*)[cell.contentView viewWithTag:labelTag];
+//    
+//    UICollectionViewFlowLayout* flowLayout = (UICollectionViewFlowLayout*)self.filterCollectionView.collectionViewLayout;
+//    CGFloat thumbnailEdgeSize = flowLayout.itemSize.width;
+//
+//    // frames of items based on flow layout's itemSize property (set earlier in viewWillLayoutSubviews
+//    
+//    if (!thumbnail) {
+//        thumbnail = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, thumbnailEdgeSize, thumbnailEdgeSize)];
+//        thumbnail.contentMode = UIViewContentModeScaleAspectFill;
+//        thumbnail.tag = imageViewTag;
+//        thumbnail.clipsToBounds = YES;
+//        
+//        [cell.contentView addSubview:thumbnail];
+//    }
+//    
+//    if (!label) {
+//        label = [[UILabel alloc] initWithFrame:CGRectMake(0, thumbnailEdgeSize, thumbnailEdgeSize, 20)];
+//        label.tag = labelTag;
+//        label.textAlignment = NSTextAlignmentCenter;
+//        label.font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:10];
+//        [cell.contentView addSubview:label];
+//    }
+//    
+//    thumbnail.image = self.filterImages[indexPath.row];
+//    label.text = self.filterTitles[indexPath.row];
+//    // end original cell creation/assignment
     
-    UIImageView* thumbnail = (UIImageView*)[cell.contentView viewWithTag:imageViewTag];
-    UILabel* label = (UILabel*)[cell.contentView viewWithTag:labelTag];
-    
-    UICollectionViewFlowLayout* flowLayout = (UICollectionViewFlowLayout*)self.filterCollectionView.collectionViewLayout;
-    CGFloat thumbnailEdgeSize = flowLayout.itemSize.width;
-    
-    // frames of items based on flow layout's itemSize property (set earlier in viewWillLayoutSubviews
-    
-    if (!thumbnail) {
-        thumbnail = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, thumbnailEdgeSize, thumbnailEdgeSize)];
-        thumbnail.contentMode = UIViewContentModeScaleAspectFill;
-        thumbnail.tag = imageViewTag;
-        thumbnail.clipsToBounds = YES;
-        
-        [cell.contentView addSubview:thumbnail];
-    }
-    
-    if (!label) {
-        label = [[UILabel alloc] initWithFrame:CGRectMake(0, thumbnailEdgeSize, thumbnailEdgeSize, 20)];
-        label.tag = labelTag;
-        label.textAlignment = NSTextAlignmentCenter;
-        label.font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:10];
-        [cell.contentView addSubview:label];
-    }
-    
-    thumbnail.image = self.filterImages[indexPath.row];
-    label.text = self.filterTitles[indexPath.row];
+    // custom cells
+    cell.image = self.filterImages[indexPath.row];
+    cell.title = self.filterTitles[indexPath.row];
     
     return cell;
 }
@@ -282,16 +291,47 @@
 
 - (void) addFiltersToQueue {
     CIImage* sourceCIImage = [CIImage imageWithCGImage:self.sourceImage.CGImage];
-//    
-//    // noir filter
-//    [self.photoFilterOperationQueue addOperationWithBlock:^{ // runs eventually
-//        CIFilter* noirFilter = [CIFilter filterWithName:@"CIPhotoEffectNoir"];
-//        
-//        if (noirFilter) {
-//            [noirFilter setValue:sourceCIImage forKey:kCIInputImageKey];
-//            [self addCIImageToCollectionView:noirFilter.outputImage withFilterTitle:NSLocalizedString(@"Noir", @"Noir Filter")];
-//        }
-//    }];
+    
+    // kaleidoscope filter
+    [self.photoFilterOperationQueue addOperationWithBlock:^{
+        CIFilter* kaleidoscopeFilter = [CIFilter filterWithName:@"CIKaleidoscope"];
+        
+        if (kaleidoscopeFilter) {
+            [kaleidoscopeFilter setValue:sourceCIImage forKey:kCIInputImageKey];
+            [self addCIImageToCollectionView:kaleidoscopeFilter.outputImage withFilterTitle:NSLocalizedString(@"Kaleidoscope", @"Kaleidoscope Filter")];
+        }
+    }];
+    
+    // sunbeam is a generator that just generates an image (like random) and is usually just passed in to another filter
+
+    [self.photoFilterOperationQueue addOperationWithBlock:^{
+        CIFilter* monochromeFilter = [CIFilter filterWithName:@"CIColorMonochrome"];
+        CIFilter* twirlFilter = [CIFilter filterWithName:@"CITwirlDistortion"];
+        
+        if (monochromeFilter && twirlFilter) {
+            [monochromeFilter setValue:sourceCIImage forKey:kCIInputImageKey];
+            
+            CIImage* resultImage = monochromeFilter.outputImage;
+            
+            [twirlFilter setValue:resultImage forKey:kCIInputImageKey];
+            [twirlFilter setValue:[CIVector vectorWithCGPoint:CGPointMake(CGRectGetMidX(resultImage.extent), CGRectGetMidY(resultImage.extent))] forKey:@"inputCenter"];
+            [twirlFilter setValue:@(CGRectGetWidth(resultImage.extent)/2) forKey:@"inputRadius"];
+            
+            resultImage = twirlFilter.outputImage;
+            
+            [self addCIImageToCollectionView:resultImage withFilterTitle:NSLocalizedString(@"MonoTwirl", @"Monochrome Twirl Filter")];
+        }
+    }];
+    
+    // noir filter
+    [self.photoFilterOperationQueue addOperationWithBlock:^{ // runs eventually
+        CIFilter* noirFilter = [CIFilter filterWithName:@"CIPhotoEffectNoir"];
+        
+        if (noirFilter) {
+            [noirFilter setValue:sourceCIImage forKey:kCIInputImageKey];
+            [self addCIImageToCollectionView:noirFilter.outputImage withFilterTitle:NSLocalizedString(@"Noir", @"Noir Filter")];
+        }
+    }];
     
     // boom filter
     [self.photoFilterOperationQueue addOperationWithBlock:^{
@@ -302,126 +342,126 @@
             [self addCIImageToCollectionView:boomFilter.outputImage withFilterTitle:NSLocalizedString(@"Boom", @"Boom Filter")];
         }
     }];
-//
-//    // warm filter
-//    [self.photoFilterOperationQueue addOperationWithBlock:^{
-//        CIFilter* warmFilter = [CIFilter filterWithName:@"CIPhotoEffectTransfer"];
-//        
-//        if (warmFilter) {
-//            [warmFilter setValue:sourceCIImage forKey:kCIInputImageKey];
-//            [self addCIImageToCollectionView:warmFilter.outputImage withFilterTitle:NSLocalizedString(@"Warm", @"Warm Filter")];
-//        }
-//    }];
-//    
-//    // pixel filter
-//    [self.photoFilterOperationQueue addOperationWithBlock:^{
-//        CIFilter* pixelFilter = [CIFilter filterWithName:@"CIPixellate"];
-//        
-//        if (pixelFilter) {
-//            [pixelFilter setValue:sourceCIImage forKey:kCIInputImageKey];
-//            [self addCIImageToCollectionView:pixelFilter.outputImage withFilterTitle:NSLocalizedString(@"Pixel", @"Pixel Filter")];
-//        }
-//    }];
-//    
-//    // moody filter
-//    [self.photoFilterOperationQueue addOperationWithBlock:^{
-//        CIFilter* moodyFilter = [CIFilter filterWithName:@"CISRGBToneCurveToLinear"];
-//        
-//        if (moodyFilter) {
-//            [moodyFilter setValue:sourceCIImage forKey:kCIInputImageKey];
-//            [self addCIImageToCollectionView:moodyFilter.outputImage withFilterTitle:NSLocalizedString(@"Moody", @"Moody Filter")];
-//        }
-//    }];
-//    
-//    // drunk filter (more complex)
-//    [self.photoFilterOperationQueue addOperationWithBlock:^{
-//        CIFilter* drunkFilter = [CIFilter filterWithName:@"CIConvolution5x5"];
-//        CIFilter* tiltFilter = [CIFilter filterWithName:@"CIStraightenFilter"];
-//        
-//        if (drunkFilter) {
-//            [drunkFilter setValue:sourceCIImage forKey:kCIInputImageKey];
-//            
-//            // different: set another value aside from source image, inputWeights
-//            CIVector* drunkVector = [CIVector vectorWithString: // 5x5 m convolution
-//                                     @"[0.5 0 0 0 0 0 0 0 0 0.05 0 0 0 0 0 0 0 0 0 0 0.05 0 0 0 0.5]"];
-//            // also note, forKeyPath:
-//            [drunkFilter setValue:drunkVector forKeyPath:@"inputWeights"];
-//            
-//            CIImage* result = drunkFilter.outputImage;
-//            
-//            if (tiltFilter) {
-//                // note both of these are forKeyPath
-//                [tiltFilter setValue:result forKeyPath:kCIInputImageKey];
-//                [tiltFilter setValue:@0.2 forKeyPath:kCIInputAngleKey]; // radians
-//                result = tiltFilter.outputImage;
-//            }
-//            
-//            [self addCIImageToCollectionView:result withFilterTitle:NSLocalizedString(@"Drunk", @"Drunk Filter")];
-//        }
-//    }];
-//    
-//    // film filter (even more complex
-//    [self.photoFilterOperationQueue addOperationWithBlock:^{
-//        // #1 make sepia tone version of source image
-//        CIFilter* sepiaFilter = [CIFilter filterWithName:@"CISepiaTone"];
-//        [sepiaFilter setValue:@1 forKey:kCIInputIntensityKey];
-//        [sepiaFilter setValue:sourceCIImage forKey:kCIInputImageKey];
-//        
-//        // #2 make random image (looks like color TV static
-//        CIFilter* randomFilter = [CIFilter filterWithName:@"CIRandomGenerator"];
-//        CIImage* randomImage = [CIFilter filterWithName:@"CIRandomGenerator"].outputImage;
-//        
-//        // #3 in otherImage, stretch image a bit horizontally, a lot vertically
-//        CIImage* otherRandomImage = [randomImage imageByApplyingTransform:CGAffineTransformMakeScale(1.5, 25.0)];
-//        
-//        // #4 create two filters, 1. extract white specks from randomImage
-//        CIFilter* whiteSpecks = [CIFilter filterWithName:@"CIColorMatrix" keysAndValues:kCIInputImageKey, randomImage,
-//                                 @"inputRVector", [CIVector vectorWithX:0.0 Y:1.0 Z:0.0 W:0.0],
-//                                 @"inputGVector", [CIVector vectorWithX:0.0 Y:1.0 Z:0.0 W:0.0],
-//                                 @"inputBVector", [CIVector vectorWithX:0.0 Y:1.0 Z:0.0 W:0.0],
-//                                 @"inputAVector", [CIVector vectorWithX:0.0 Y:0.01 Z:0.0 W:0.0],
-//                                 @"inputBiasVector", [CIVector vectorWithX:0.0 Y:0.0 Z:0.0 W:0.0],
-//                                 nil];
-//        
-//        // extract vertical scratches from otherImage
-//        CIFilter* darkScratches = [CIFilter filterWithName:@"CIColorMatrix" keysAndValues:kCIInputImageKey, otherRandomImage,
-//                                   @"inputRVector", [CIVector vectorWithX:3.659 Y:0.0 Z:0.0 W:0.0],
-//                                   @"inputGVector", [CIVector vectorWithX:0.0 Y:0.0 Z:0.0 W:0.0],
-//                                   @"inputBVector", [CIVector vectorWithX:0.0 Y:0.0 Z:0.0 W:0.0],
-//                                   @"inputAVector", [CIVector vectorWithX:0.0 Y:0.0 Z:0.0 W:0.0],
-//                                   @"inputBiasVector", [CIVector vectorWithX:0.0 Y:1.0 Z:1.0 W:1.0],
-//                                   nil];
-//        
-//        // #5 create minComponent and composite which will combine the layers
-//        CIFilter* minimumComponent = [CIFilter filterWithName:@"CIMinimumComponent"];
-//        CIFilter* composite = [CIFilter filterWithName:@"CIMultiplyCompositing"];
-//        
-//        // #6 ensure all filters exist
-//        if (sepiaFilter && randomFilter && whiteSpecks && darkScratches && minimumComponent && composite) {
-//            // #7 apply sepia filter
-//            CIImage* sepiaImage = sepiaFilter.outputImage;
-//            
-//            // #8 generate whiteSpecksImage, crop to source img since size infinite
-//            CIImage* whiteSpecksImage = [whiteSpecks.outputImage imageByCroppingToRect:sourceCIImage.extent];
-//            
-//            // #9 create sepiaPlus by overlaying whiteSpecks on top of sepia-toned
-//            CIImage* sepiaPlusWhiteSpecksImage = [CIFilter filterWithName:@"CISourceOverCompositing" keysAndValues:
-//                                                  kCIInputImageKey, whiteSpecksImage,
-//                                                  kCIInputBackgroundImageKey, sepiaImage,
-//                                                  nil].outputImage;
-//            
-//            // #10 create darkScratches and add on top of whiteSpecs
-//            CIImage* darkScratchesImage = [darkScratches.outputImage imageByCroppingToRect:sourceCIImage.extent];
-//            
-//            [minimumComponent setValue:darkScratchesImage forKey:kCIInputImageKey];
-//            darkScratchesImage = minimumComponent.outputImage; // get whole thing
-//            
-//            [composite setValue:sepiaPlusWhiteSpecksImage forKey:kCIInputImageKey];
-//            [composite setValue:darkScratchesImage forKey:kCIInputBackgroundImageKey];
-//            
-//            [self addCIImageToCollectionView:composite.outputImage withFilterTitle:NSLocalizedString(@"Film", @"Film Filter")];
-//        }
-//    }]; // end film filter
+
+    // warm filter
+    [self.photoFilterOperationQueue addOperationWithBlock:^{
+        CIFilter* warmFilter = [CIFilter filterWithName:@"CIPhotoEffectTransfer"];
+        
+        if (warmFilter) {
+            [warmFilter setValue:sourceCIImage forKey:kCIInputImageKey];
+            [self addCIImageToCollectionView:warmFilter.outputImage withFilterTitle:NSLocalizedString(@"Warm", @"Warm Filter")];
+        }
+    }];
+    
+    // pixel filter
+    [self.photoFilterOperationQueue addOperationWithBlock:^{
+        CIFilter* pixelFilter = [CIFilter filterWithName:@"CIPixellate"];
+        
+        if (pixelFilter) {
+            [pixelFilter setValue:sourceCIImage forKey:kCIInputImageKey];
+            [self addCIImageToCollectionView:pixelFilter.outputImage withFilterTitle:NSLocalizedString(@"Pixel", @"Pixel Filter")];
+        }
+    }];
+    
+    // moody filter
+    [self.photoFilterOperationQueue addOperationWithBlock:^{
+        CIFilter* moodyFilter = [CIFilter filterWithName:@"CISRGBToneCurveToLinear"];
+        
+        if (moodyFilter) {
+            [moodyFilter setValue:sourceCIImage forKey:kCIInputImageKey];
+            [self addCIImageToCollectionView:moodyFilter.outputImage withFilterTitle:NSLocalizedString(@"Moody", @"Moody Filter")];
+        }
+    }];
+    
+    // drunk filter (more complex)
+    [self.photoFilterOperationQueue addOperationWithBlock:^{
+        CIFilter* drunkFilter = [CIFilter filterWithName:@"CIConvolution5x5"];
+        CIFilter* tiltFilter = [CIFilter filterWithName:@"CIStraightenFilter"];
+        
+        if (drunkFilter) {
+            [drunkFilter setValue:sourceCIImage forKey:kCIInputImageKey];
+            
+            // different: set another value aside from source image, inputWeights
+            CIVector* drunkVector = [CIVector vectorWithString: // 5x5 m convolution
+                                     @"[0.5 0 0 0 0 0 0 0 0 0.05 0 0 0 0 0 0 0 0 0 0 0.05 0 0 0 0.5]"];
+            // also note, forKeyPath:
+            [drunkFilter setValue:drunkVector forKeyPath:@"inputWeights"];
+            
+            CIImage* result = drunkFilter.outputImage;
+            
+            if (tiltFilter) {
+                // note both of these are forKeyPath
+                [tiltFilter setValue:result forKeyPath:kCIInputImageKey];
+                [tiltFilter setValue:@0.2 forKeyPath:kCIInputAngleKey]; // radians
+                result = tiltFilter.outputImage;
+            }
+            
+            [self addCIImageToCollectionView:result withFilterTitle:NSLocalizedString(@"Drunk", @"Drunk Filter")];
+        }
+    }];
+    
+    // film filter (even more complex)
+    [self.photoFilterOperationQueue addOperationWithBlock:^{
+        // #1 make sepia tone version of source image
+        CIFilter* sepiaFilter = [CIFilter filterWithName:@"CISepiaTone"];
+        [sepiaFilter setValue:@1 forKey:kCIInputIntensityKey];
+        [sepiaFilter setValue:sourceCIImage forKey:kCIInputImageKey];
+        
+        // #2 make random image (looks like color TV static
+        CIFilter* randomFilter = [CIFilter filterWithName:@"CIRandomGenerator"];
+        CIImage* randomImage = [CIFilter filterWithName:@"CIRandomGenerator"].outputImage;
+        
+        // #3 in otherImage, stretch image a bit horizontally, a lot vertically
+        CIImage* otherRandomImage = [randomImage imageByApplyingTransform:CGAffineTransformMakeScale(1.5, 25.0)];
+        
+        // #4 create two filters, 1. extract white specks from randomImage
+        CIFilter* whiteSpecks = [CIFilter filterWithName:@"CIColorMatrix" keysAndValues:kCIInputImageKey, randomImage,
+                                 @"inputRVector", [CIVector vectorWithX:0.0 Y:1.0 Z:0.0 W:0.0],
+                                 @"inputGVector", [CIVector vectorWithX:0.0 Y:1.0 Z:0.0 W:0.0],
+                                 @"inputBVector", [CIVector vectorWithX:0.0 Y:1.0 Z:0.0 W:0.0],
+                                 @"inputAVector", [CIVector vectorWithX:0.0 Y:0.01 Z:0.0 W:0.0],
+                                 @"inputBiasVector", [CIVector vectorWithX:0.0 Y:0.0 Z:0.0 W:0.0],
+                                 nil];
+        
+        // 2. extract vertical scratches from otherImage
+        CIFilter* darkScratches = [CIFilter filterWithName:@"CIColorMatrix" keysAndValues:kCIInputImageKey, otherRandomImage,
+                                   @"inputRVector", [CIVector vectorWithX:3.659 Y:0.0 Z:0.0 W:0.0],
+                                   @"inputGVector", [CIVector vectorWithX:0.0 Y:0.0 Z:0.0 W:0.0],
+                                   @"inputBVector", [CIVector vectorWithX:0.0 Y:0.0 Z:0.0 W:0.0],
+                                   @"inputAVector", [CIVector vectorWithX:0.0 Y:0.0 Z:0.0 W:0.0],
+                                   @"inputBiasVector", [CIVector vectorWithX:0.0 Y:1.0 Z:1.0 W:1.0],
+                                   nil];
+        
+        // #5 create minComponent and composite which will combine the layers
+        CIFilter* minimumComponent = [CIFilter filterWithName:@"CIMinimumComponent"];
+        CIFilter* composite = [CIFilter filterWithName:@"CIMultiplyCompositing"];
+        
+        // #6 ensure all filters exist
+        if (sepiaFilter && randomFilter && whiteSpecks && darkScratches && minimumComponent && composite) {
+            // #7 apply sepia filter
+            CIImage* sepiaImage = sepiaFilter.outputImage;
+            
+            // #8 generate whiteSpecksImage, crop to source img since size infinite
+            CIImage* whiteSpecksImage = [whiteSpecks.outputImage imageByCroppingToRect:sourceCIImage.extent];
+            
+            // #9 create sepiaPlus by overlaying whiteSpecks on top of sepia-toned
+            CIImage* sepiaPlusWhiteSpecksImage = [CIFilter filterWithName:@"CISourceOverCompositing" keysAndValues:
+                                                  kCIInputImageKey, whiteSpecksImage,
+                                                  kCIInputBackgroundImageKey, sepiaImage,
+                                                  nil].outputImage;
+            
+            // #10 create darkScratches and add on top of whiteSpecs
+            CIImage* darkScratchesImage = [darkScratches.outputImage imageByCroppingToRect:sourceCIImage.extent];
+            
+            [minimumComponent setValue:darkScratchesImage forKey:kCIInputImageKey];
+            darkScratchesImage = minimumComponent.outputImage; // get whole thing
+            
+            [composite setValue:sepiaPlusWhiteSpecksImage forKey:kCIInputImageKey];
+            [composite setValue:darkScratchesImage forKey:kCIInputBackgroundImageKey];
+            
+            [self addCIImageToCollectionView:composite.outputImage withFilterTitle:NSLocalizedString(@"Film", @"Film Filter")];
+        }
+    }]; // end film filter
 }
 
 @end

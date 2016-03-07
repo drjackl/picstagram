@@ -159,17 +159,17 @@
 
 
 - (void) cameraViewController:(CameraViewController*)cameraViewController didCompleteWithImage:(UIImage*)image {
-    [cameraViewController dismissViewControllerAnimated:YES completion:^{
-        // used to just simply print a message whether or not there was a message
-        [self handleImage:image withNavigationController:cameraViewController.navigationController];
-    }];
+    
+    // used to dismiss camera VC and just simply print a message whether or not there was a message
+    
+    [self handleImage:image withNavigationController:cameraViewController.navigationController];
 }
 
 - (void) imageLibraryViewController:(ImageLibraryViewController*)imageLibraryViewController didCompleteWithImage:(UIImage*)image {
-    [imageLibraryViewController dismissViewControllerAnimated:YES completion:^{
-        // used to just simply print a message whether or not there was a message
-        [self handleImage:image withNavigationController:imageLibraryViewController.navigationController];
-    }];
+    
+    // used to just dismiss photo VC
+    
+    [self handleImage:image withNavigationController:imageLibraryViewController.navigationController];
 }
 
 #pragma mark - Miscellaneous
