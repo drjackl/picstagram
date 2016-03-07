@@ -490,7 +490,7 @@
 //    // new custom cell (fixed hack not based on actual cell height)
 //    return 300 + (CGRectGetWidth(self.view.frame) / image.size.width) * image.size.height;
     // new custom cell ("fake" layout table cell to find height)
-    return [MediaTableViewCell heightForMediaItem:item width:CGRectGetWidth(self.view.frame)];
+    return [MediaTableViewCell heightForMediaItem:item width:CGRectGetWidth(self.view.frame) traitCollection:self.view.traitCollection];
 }
 
 

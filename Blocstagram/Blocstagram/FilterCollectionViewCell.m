@@ -46,14 +46,18 @@ static UIFont* labelFont;
 - (void) layoutSubviews {
     NSLog(@"content view bounds: %@", NSStringFromCGRect(self.contentView.bounds));
     
+    if (!self.thumbnail || !self.title) {
+        return;
+    }
+    
     CGFloat width = CGRectGetHeight(self.contentView.bounds) - 20;
     NSLog(@"get height: %f", CGRectGetHeight(self.contentView.bounds));
     NSLog(@"width: %f", width);
-//    self.thumbnail.frame = CGRectMake(0, 0, width, width);
-//    self.label.frame = CGRectMake(0, width, width, 20);
+    self.thumbnail.frame = CGRectMake(0, 0, width, width);
+    self.label.frame = CGRectMake(0, width, width, 20);
     
-    self.thumbnail.frame = CGRectMake(10, 10, 80, 20);
-    self.label.frame = CGRectMake(10, 10, 80, 20);
+//    self.thumbnail.frame = CGRectMake(10, 10, 80, 20);
+//    self.label.frame = CGRectMake(10, 10, 80, 20);
     
     NSLog(@"thumbnail: %@", NSStringFromCGRect(self.thumbnail.frame));
     NSLog(@"label: %@", NSStringFromCGRect(self.label.frame));

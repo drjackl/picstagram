@@ -442,7 +442,7 @@
                                             
                                             NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
                                             NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
-                                            [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem];
+                                            [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem]; // got a runtime error here logging in
                                             
                                             // retry downloads:
                                             [self saveImages]; // ?

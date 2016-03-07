@@ -33,14 +33,15 @@
 // two finger tap retries an image download
 @property (nonatomic) UITapGestureRecognizer* twoFingerTapGestureRecognizer;
 
-
 @property (nonatomic) LikeButton* likeButton; // the like button for this cell
 
 @property (nonatomic) LikeCountLabel* likeCountLabel; // like count label for this cell
 
-
 // for compose view, redeclaring as readwrite
 @property (nonatomic) ComposeCommentView* commentView;
+
+@property (nonatomic) NSArray* horizontallyRegularConstraints;
+@property (nonatomic) NSArray* horizontallyCompactConstraints;
 
 @end
 
@@ -57,10 +58,13 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
 
 @implementation MediaTableViewCell
 
-// "fakes" layout event to get full height
-+ (CGFloat) heightForMediaItem:(Media*)mediaItem width:(CGFloat)width {
+// "fakes" layout event to get full height (which won't work with UITraitElements)
++ (CGFloat) heightForMediaItem:(Media*)mediaItem width:(CGFloat)width traitCollection:(UITraitCollection*)traitCollection {
     MediaTableViewCell* layoutCell = [[MediaTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"layoutCell"]; // create cell
     layoutCell.mediaItem = mediaItem; // set mediaItem
+    
+    // for iPad responsiveness
+    layoutCell.overrideTraitCollection = traitCollection;
     
 //    // for manual layout
 //    layoutCell.frame = CGRectMake(0, 0, width, CGFLOAT_MAX); // set width and tallest possible
@@ -162,10 +166,25 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
         // auto-layout: add some constraints (like button/count 3. update constraints) (also adding comment view)
         NSDictionary* viewDictionary = NSDictionaryOfVariableBindings(_mediaImageView, _usernameAndCaptionLabel, _commentLabel, _likeButton, _likeCountLabel, _commentView);
         
-        // visual format begins with H: or V:
+        // visual format begins with H: or V: (comment out for iPad customization)
         // | is superview, [viewVariable] represents one view
         // 3 constraints: view's leading/trailing edges equal to content view's
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_mediaImageView]|" options:kNilOptions metrics:nil views:viewDictionary]]; // [_mediaImageView(100)] to constrain width to 100
+//        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_mediaImageView]|" options:kNilOptions metrics:nil views:viewDictionary]]; // [_mediaImageView(100)] to constrain width to 100
+        
+        // iPad: create two arrays of auto-layout constraints: 1 regular, 1 compact
+        self.horizontallyCompactConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_mediaImageView]|" options:kNilOptions metrics:nil views:viewDictionary];
+        
+        NSLayoutConstraint* widthConstraint = [NSLayoutConstraint constraintWithItem:_mediaImageView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:320];
+        NSLayoutConstraint* centerConstraint = [NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeCenterX relatedBy:0 toItem:_mediaImageView attribute:NSLayoutAttributeCenterX multiplier:1 constant:0];
+        
+        self.horizontallyRegularConstraints = @[widthConstraint, centerConstraint];
+        
+        // add one of the constraint arrays depending on current size class
+        if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
+            [self.contentView addConstraints:self.horizontallyCompactConstraints];
+        } else if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular) {
+            [self.contentView addConstraints:self.horizontallyRegularConstraints];
+        }
         
 //        // original constraint before like button
 //        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_usernameAndCaptionLabel]|" options:kNilOptions metrics:nil views:viewDictionary]];
@@ -271,9 +290,18 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
     // when you delete items, need to check if the heights are zero, especially the last one cuz may divide by zero
     self.usernameAndCaptionLabelHeightConstraint.constant = usernameLabelSize.height == 0 ? 0 : usernameLabelSize.height + 20;
     self.commentLabelHeightConstraint.constant = commentLabelSize.height == 0 ? 0 : commentLabelSize.height + 20;
+    
+    // check for divide by zero
     if (self.mediaItem.image.size.width > 0 &&
         CGRectGetWidth(self.contentView.bounds) > 0) {
-        self.imageHeightConstraint.constant = self.mediaItem.image.size.height * (CGRectGetWidth(self.contentView.bounds) / self.mediaItem.image.size.width);
+//        self.imageHeightConstraint.constant = self.mediaItem.image.size.height * (CGRectGetWidth(self.contentView.bounds) / self.mediaItem.image.size.width);
+        
+        // for iPad
+        if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
+            self.imageHeightConstraint.constant = self.mediaItem.image.size.height / self.mediaItem.image.size.width * CGRectGetWidth(self.contentView.bounds);
+        } else if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular) {
+            self.imageHeightConstraint.constant = 320;
+        }
     } else {
         //self.imageHeightConstraint.constant = 0; // originally, just make height 0
         self.imageHeightConstraint.constant = 200; // reduce jumpiness try: set to greater than 0
@@ -285,6 +313,26 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
                                            0, // bottom
                                            CGRectGetWidth(self.bounds)/2.0); // right
     
+}
+
+// override for iPad: update constraints if user rotates device
+- (void) traitCollectionDidChange:(UITraitCollection*)previousTraitCollection {
+    if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
+        [self.contentView removeConstraints:self.horizontallyRegularConstraints];
+        [self.contentView addConstraints:self.horizontallyCompactConstraints];
+    } else if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular) {
+        [self.contentView removeConstraints:self.horizontallyCompactConstraints];
+        [self.contentView addConstraints:self.horizontallyRegularConstraints];
+    }
+}
+
+// override traitCollection to return overrideTC if it's been set
+- (UITraitCollection*) traitCollection {
+    if (self.overrideTraitCollection) {
+        return self.overrideTraitCollection;
+    }
+    
+    return [super traitCollection];
 }
 
 #pragma mark - Liking

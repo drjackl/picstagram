@@ -41,8 +41,12 @@
 // for compose view
 @property (nonatomic, readonly) ComposeCommentView* commentView;
 
+// for iPad responsiveness
+@property (nonatomic) UITraitCollection* overrideTraitCollection;
+
 // like static variables declared earlier, but in .h so all classes may use
-+ (CGFloat) heightForMediaItem:(Media*)mediaItem width:(CGFloat)width;
+// update for iPad responsiveness by adding trait argument
++ (CGFloat) heightForMediaItem:(Media*)mediaItem width:(CGFloat)width traitCollection:(UITraitCollection*)traitCollection;
 
 // compose view method
 - (void) stopComposingComment;
