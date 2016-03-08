@@ -75,6 +75,7 @@ static NSMutableParagraphStyle* rightalignedParagraphStyle;
     [layoutCell setNeedsLayout];
     [layoutCell layoutIfNeeded];
     
+    
 //    // height will be bottom of comments label
 //    return CGRectGetMaxY(layoutCell.commentLabel.frame);
     

@@ -41,6 +41,7 @@
 		04F30D971C8BE921004EE4CC /* PostToInstagramViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D961C8BE921004EE4CC /* PostToInstagramViewController.m */; };
 		04F30D9A1C8CD851004EE4CC /* FilterCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D991C8CD850004EE4CC /* FilterCollectionViewCell.m */; };
 		04F30D9D1C8DE7EC004EE4CC /* UIViewController+AlertController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D9C1C8DE7EC004EE4CC /* UIViewController+AlertController.m */; };
+		04F30D9F1C8E56AD004EE4CC /* UserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F30D9E1C8E56AD004EE4CC /* UserTests.m */; };
 		04F728C21C88F05300BEBE44 /* LikeButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C11C88F05300BEBE44 /* LikeButton.m */; };
 		04F728C51C89494000BEBE44 /* LikeCountLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C41C89494000BEBE44 /* LikeCountLabel.m */; };
 		04F728C81C896DEF00BEBE44 /* ComposeCommentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F728C71C896DEF00BEBE44 /* ComposeCommentView.m */; };
@@ -124,6 +125,7 @@
 		04F30D991C8CD850004EE4CC /* FilterCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterCollectionViewCell.m; sourceTree = "<group>"; };
 		04F30D9B1C8DE7EC004EE4CC /* UIViewController+AlertController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+AlertController.h"; sourceTree = "<group>"; };
 		04F30D9C1C8DE7EC004EE4CC /* UIViewController+AlertController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+AlertController.m"; sourceTree = "<group>"; };
+		04F30D9E1C8E56AD004EE4CC /* UserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserTests.m; sourceTree = "<group>"; };
 		04F728C01C88F05300BEBE44 /* LikeButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LikeButton.h; sourceTree = "<group>"; };
 		04F728C11C88F05300BEBE44 /* LikeButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LikeButton.m; sourceTree = "<group>"; };
 		04F728C31C89494000BEBE44 /* LikeCountLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LikeCountLabel.h; sourceTree = "<group>"; };
@@ -252,6 +254,7 @@
 			children = (
 				04B572721C82C60C00BFF958 /* BlocstagramTests.m */,
 				04B572741C82C60C00BFF958 /* Info.plist */,
+				04F30D9E1C8E56AD004EE4CC /* UserTests.m */,
 			);
 			path = BlocstagramTests;
 			sourceTree = "<group>";
@@ -519,6 +522,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04F30D9F1C8E56AD004EE4CC /* UserTests.m in Sources */,
 				04B572731C82C60C00BFF958 /* BlocstagramTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
