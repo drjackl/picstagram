@@ -94,14 +94,8 @@
     testMedia.image = [UIImage imageNamed:@"7.jpg"];
     
     // need to pass in traitcollection otherwise imageHeighConstraint doesn't get set
-//    XCTAssertEqualWithAccuracy([MediaTableViewCell heightForMediaItem:testMedia width:3 traitCollection:nil], 410, 2);
-//    
-//    XCTAssertEqualWithAccuracy([MediaTableViewCell heightForMediaItem:testMedia width:1200 traitCollection:nil], 410, 2);
-
     
-    //XCTAssertEqualWithAccuracy([MediaTableViewCell heightForMediaItem:testMedia width:3 traitCollection:[UITraitCollection traitCollectionWithHorizontalSizeClass:UIUserInterfaceSizeClassCompact]], 410, 2);
-    
-    // to test heighForMediaItem, need Media, set an image, set traitCollection, understand how height of cell is calculated from all subviews with auto-layout
+    // to test heightForMediaItem, need Media, set an image, set traitCollection, understand how height of cell is calculated from all subviews with auto-layout
     
     // constraint to test: V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel][_commentView(==100)
 
