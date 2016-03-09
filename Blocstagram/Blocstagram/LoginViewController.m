@@ -13,7 +13,7 @@
 
 @property (nonatomic, weak) UIWebView* webView; // why weak?
 
-@property (nonatomic) UIButton* backButton;
+@property (nonatomic) UIBarButtonItem* backBarButton;
 
 @end
 
@@ -39,13 +39,10 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
     [self.view addSubview:webView];
     self.webView = webView;
     
-    // add back and home button
-    UIButton* backButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    self.backButton = backButton;
-    [backButton setTitle:NSLocalizedString(@"Back", @"Navigate back") forState:UIControlStateNormal];
-    [backButton setEnabled:NO];
-    [backButton addTarget:self.webView action:@selector(goBack) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:backButton];
+    // add back (or home) button (accidentally created a button at bottom before)
+    self.backBarButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", @"Navigate back") style:UIBarButtonItemStylePlain target:self.webView action:@selector(goBack)];
+    self.backBarButton.enabled = NO;
+    self.navigationItem.leftBarButtonItem = self.backBarButton;
     
     // set title for View
     self.title = NSLocalizedString(@"Login", @"Login");
@@ -74,15 +71,9 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
 }
 
 - (void) viewWillLayoutSubviews {
-    self.webView.frame = self.view.bounds; // takes up entire page?
+    self.webView.frame = self.view.bounds; // takes up entire page
     
-    static const CGFloat buttonHeight = 50;
-    self.webView.frame = CGRectMake(0, 0, CGRectGetWidth(self.view.bounds),
-                                    CGRectGetHeight(self.view.bounds) - buttonHeight);
-    
-    // put back button at bottom
-    self.backButton.frame = CGRectMake(0, CGRectGetMaxY(self.webView.frame),// - buttonHeight,
-                                       CGRectGetWidth(self.webView.bounds), buttonHeight);
+//    used to have static const CGFloat buttonHeight = 50; and subtract from web height and put button on bottm
 }
 
 - (void)didReceiveMemoryWarning {
@@ -140,7 +131,7 @@ NSString* const LoginViewControllerDidGetAccessTokenNotification = @"LoginViewCo
 }
 
 - (void) updateButtonState {
-    self.backButton.enabled = self.webView.canGoBack;
+    self.backBarButton.enabled = self.webView.canGoBack;
 }
 
 /*

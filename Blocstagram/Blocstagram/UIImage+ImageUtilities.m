@@ -167,6 +167,10 @@
     image = [self imageResizedToMatchAspectRationOfSize:size];
     image = [self imageCroppedToRect:rect];
     return image;
+    
+//    [self imageWithFixedOrientation];
+//    [self imageResizedToMatchAspectRationOfSize:size];
+//    return [self imageCroppedToRect:rect];
 }
 
 
