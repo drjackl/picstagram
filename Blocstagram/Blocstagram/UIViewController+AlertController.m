@@ -10,24 +10,24 @@
 
 @implementation UIViewController (AlertController)
 
-//- (void) presentOKAlertWithError:(NSError*)error {
-//    UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:error.localizedDescription message:error.localizedRecoverySuggestion preferredStyle:UIAlertControllerStyleAlert];
-//    [self addAlertActionAndPresentAlert:alertVC];
-//}
-//
-//- (void) presentCameraPermissionDeniedAlert {
-//    UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Camera Permission Denied", @"camera permission denied title") message:NSLocalizedString(@"This app doesn't have permission to use the camera; please update your privacy settings.", @"camera premission denied recovery suggestion") preferredStyle:UIAlertControllerStyleAlert];
-//    [self addAlertActionAndPresentAlert:alertVC];
-//}
-//
-//- (void) addAlertActionAndPresentAlert:(UIAlertController*)alertVC {
-//    [alertVC addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK button") style:UIAlertActionStyleCancel handler:^(UIAlertAction*_Nonnull action) {
-//        [self.delegate cameraViewController:self didCompleteWithImage:nil];
-//    }]]; // end alertVC addAction:
-//    
-//    [self presentViewController:self animated:YES completion:nil];
-//}
+- (void) presentOKAlertWithError:(NSError*)error withCompletionHandler:(nullable void(^)(UIAlertAction*_Nonnull action))handler {
+    UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:error.localizedDescription message:error.localizedRecoverySuggestion preferredStyle:UIAlertControllerStyleAlert];
+    [self addAlertActionAndPresentAlert:alertVC withCompletionHandler:handler];
+}
 
+- (void) presentCameraPermissionDeniedAlertWithCompletionHandler:(SetDelegateCompletionBlock)handler; {
+    UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Camera Permission Denied", @"camera permission denied title") message:NSLocalizedString(@"This app doesn't have permission to use the camera; please update your privacy settings.", @"camera premission denied recovery suggestion") preferredStyle:UIAlertControllerStyleAlert];
+    [self addAlertActionAndPresentAlert:alertVC withCompletionHandler:handler];
+}
+
+//- (void) addAlertActionAndPresentAlert:(UIAlertController*)alertVC withCompletionHandler:(void ^ (UIAlertAction*_Nonnull action))handler {
+- (void) addAlertActionAndPresentAlert:(UIAlertController*)alertVC withCompletionHandler:(nullable void(^)(UIAlertAction*_Nonnull action))handler {
+    [alertVC addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK button") style:UIAlertActionStyleCancel handler:handler]]; // end alertVC addAction:
+    
+    [self presentViewController:self animated:YES completion:nil];
+}
+
+// Activity Controller
 - (void) shareItemsWithActivityController:(NSArray *)itemsArray {
     if (itemsArray.count > 0) {
         UIActivityViewController* activityVC = [[UIActivityViewController alloc] initWithActivityItems:itemsArray applicationActivities:nil];

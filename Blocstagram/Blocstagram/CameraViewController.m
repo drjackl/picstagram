@@ -12,6 +12,7 @@
 #import "UIImage+ImageUtilities.h" // for image rotations, cropping
 #import "CropBox.h" // refactored out since duplicating in photos view
 #import "ImageLibraryViewController.h"
+#import "UIViewController+AlertController.h" // for refactoring out AlertController
 
 // add photo delegate
 @interface CameraViewController () <CameraToolbarDelegate, ImageLibraryViewControllerDelegate>
@@ -109,8 +110,13 @@
                 AVCaptureDeviceInput* input = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
                 if (!input) {
                     
-                    // refactored out
-                    [self presentOKAlertWithError:error];
+                    // refactored out (first here, now in UIVC+Controller
+                    [self presentOKAlertWithError:error
+                            withCompletionHandler:[self returnSetDelegateBlock]];
+//                            withCompletionHandler:^(UIAlertAction * _Nonnull action) {
+//                                [self.delegate cameraViewController:self didCompleteWithImage:nil];
+//                            }];
+                    
                     
 //                    UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:error.localizedDescription message:error.localizedRecoverySuggestion preferredStyle:UIAlertControllerStyleAlert];
 //                    [alertVC addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK button") style:UIAlertActionStyleCancel handler:^(UIAlertAction*_Nonnull action) {
@@ -136,7 +142,10 @@
             } else { // not granted
                 
                 // refactored out
-                [self presentCameraPermissionDeniedAlert];
+                [self presentCameraPermissionDeniedAlertWithCompletionHandler:[self returnSetDelegateBlock]];
+//                 ^(UIAlertAction * _Nonnull action) {
+//                     [self.delegate cameraViewController:self didCompleteWithImage:nil];
+//                 }];
                 
 //                UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Camera Permission Denied", @"camera permission denied title") message:NSLocalizedString(@"This app doesn't have permission to use the camera; please update your privacy settings.", @"camera premission denied recovery suggestion") preferredStyle:UIAlertControllerStyleAlert];
 //                [alertVC addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK button") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
@@ -206,7 +215,11 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 // refactored out
-                [self presentOKAlertWithError:error];
+                [self presentOKAlertWithError:error
+                        withCompletionHandler:[self returnSetDelegateBlock]];
+//                        withCompletionHandler:^(UIAlertAction * _Nonnull action) {
+//                            [self.delegate cameraViewController:self didCompleteWithImage:nil];
+//                        }];
                 
 //                UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:error.localizedDescription message:error.localizedRecoverySuggestion preferredStyle:UIAlertControllerStyleAlert];
 //                [alertVC addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK button") style:UIAlertActionStyleCancel handler:^(UIAlertAction*_Nonnull action) {
@@ -220,23 +233,32 @@
     }]; // end self.stillImageOutput captureStillImage
 }
 
-- (void) presentOKAlertWithError:(NSError*)error {
-    UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:error.localizedDescription message:error.localizedRecoverySuggestion preferredStyle:UIAlertControllerStyleAlert];
-    [self addAlertActionAndPresentAlert:alertVC];
-}
-
-- (void) presentCameraPermissionDeniedAlert {
-    UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Camera Permission Denied", @"camera permission denied title") message:NSLocalizedString(@"This app doesn't have permission to use the camera; please update your privacy settings.", @"camera premission denied recovery suggestion") preferredStyle:UIAlertControllerStyleAlert];
-    [self addAlertActionAndPresentAlert:alertVC];
-}
-
-- (void) addAlertActionAndPresentAlert:(UIAlertController*)alertVC {
-    [alertVC addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK button") style:UIAlertActionStyleCancel handler:^(UIAlertAction*_Nonnull action) {
+//(nullable void(^)(UIAlertAction*_Nonnull action))handler
+- (SetDelegateCompletionBlock) returnSetDelegateBlock {
+    return ^(UIAlertAction*_Nonnull action) {
         [self.delegate cameraViewController:self didCompleteWithImage:nil];
-    }]]; // end alertVC addAction:
-    
-    [self presentViewController:self animated:YES completion:nil];
+    };
 }
+
+
+//- (void) presentOKAlertWithError:(NSError*)error {
+//    UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:error.localizedDescription message:error.localizedRecoverySuggestion preferredStyle:UIAlertControllerStyleAlert];
+//    [self addAlertActionAndPresentAlert:alertVC];
+//}
+//
+//- (void) presentCameraPermissionDeniedAlert {
+//    UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Camera Permission Denied", @"camera permission denied title") message:NSLocalizedString(@"This app doesn't have permission to use the camera; please update your privacy settings.", @"camera premission denied recovery suggestion") preferredStyle:UIAlertControllerStyleAlert];
+//    [self addAlertActionAndPresentAlert:alertVC];
+//}
+//
+//- (void) addAlertActionAndPresentAlert:(UIAlertController*)alertVC {
+//    [alertVC addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK button") style:UIAlertActionStyleCancel
+//                                              handler:^(UIAlertAction*_Nonnull action) {
+//        [self.delegate cameraViewController:self didCompleteWithImage:nil];
+//                                              }]]; // end alertVC addAction:
+//    
+//    [self presentViewController:self animated:YES completion:nil];
+//}
 
 #pragma mark - Layout
 
