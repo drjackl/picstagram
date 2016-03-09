@@ -26,7 +26,8 @@ typedef void (^NewItemCompletionBlock)(NSError* error);
 //+ (void) deleteItemAtIndex:(NSInteger)row; // initial deletion handling (not quite right)
 - (void) deleteMediaItem:(Media*)item; // KVO deleting
 //- (void) moveMediaItemToTop:(Media*)item; // KVO moving to top
-- (void) retryDownloadingMediaItem:(Media*)item;
+
+//- (void) retryDownloadingMediaItem:(Media*)item; // not necessary since next project makes download public
 
 // expose this for retry downloading images (maybe don't need retry: method)
 - (void) downloadImageForMediaItem:(Media*)mediaItem;

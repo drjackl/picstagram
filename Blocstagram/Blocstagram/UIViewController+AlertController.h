@@ -13,4 +13,6 @@
 //- (void) presentOKAlertWithError:(NSError*)error;
 //- (void) presentCameraPermissionDeniedAlert;
 
+- (void) shareItemsWithActivityController:(NSArray*)itemsArray;
+
 @end

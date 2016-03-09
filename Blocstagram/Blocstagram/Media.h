@@ -50,6 +50,8 @@ typedef NS_ENUM(NSInteger, MediaDownloadState) {
 
 - (instancetype) initWithDictionary:(NSDictionary*)mediaDictionary;
 
-- (void) shareGivenViewController:(UIViewController*)viewController;
+// not good to have model take in a VC
+//- (void) shareGivenViewController:(UIViewController*)viewController;
+- (NSArray*) createItemsToShare;
 
 @end

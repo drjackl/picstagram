@@ -66,9 +66,9 @@
 //}
 
 // public method for downloading an item
-- (void) retryDownloadingMediaItem:(Media*)item {
-    [self downloadImageForMediaItem:item];
-}
+//- (void) retryDownloadingMediaItem:(Media*)item {
+//    [self downloadImageForMediaItem:item];
+//}
 
 - (instancetype) init {
     self = [super init];

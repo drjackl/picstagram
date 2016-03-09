@@ -16,6 +16,7 @@
 #import "CameraViewController.h"
 #import "ImageLibraryViewController.h" // for photos
 #import "PostToInstagramViewController.h" // for posting
+#import "UIViewController+AlertController.h" // for refactoring out ActivityVC
 
 // for fullscreen and camera VCs
 @interface ImagesTableViewController () <MediaTableViewCellDelegate, CameraViewControllerDelegate, ImageLibraryViewControllerDelegate>
@@ -393,6 +394,8 @@
 }
 
 - (void) cell:(MediaTableViewCell*)cell didLongPressImageView:(UIImageView*)imageView {
+    NSArray* itemsToShare = [cell.mediaItem createItemsToShare];
+    
 //    NSMutableArray* itemsToShare = [NSMutableArray array];
 //    
 //    if (cell.mediaItem.caption.length > 0) {
@@ -408,12 +411,17 @@
 //        [self presentViewController:activityVC animated:YES completion:nil];
 //    }
     
-    [cell.mediaItem shareGivenViewController:self];
+    // not good to pass in VCs (was previously refactored code from above)
+    //[cell.mediaItem shareGivenViewController:self];
+    
+    [self shareItemsWithActivityController:itemsToShare];
 }
 
 - (void) cell:(MediaTableViewCell*)cell didTwoFingerTapImageView:(UIImageView*)imageView {
     NSLog(@"Two finger tap heard");
-    [[DataSource sharedInstance] retryDownloadingMediaItem:cell.mediaItem];
+    //[[DataSource sharedInstance] retryDownloadingMediaItem:cell.mediaItem];
+    [[DataSource sharedInstance] downloadImageForMediaItem:cell.mediaItem];
+    
 }
 
 // setting cell.mediaItem will update button's appearance which we always do in end

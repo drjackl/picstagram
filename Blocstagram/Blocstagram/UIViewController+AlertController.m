@@ -28,4 +28,11 @@
 //    [self presentViewController:self animated:YES completion:nil];
 //}
 
+- (void) shareItemsWithActivityController:(NSArray *)itemsArray {
+    if (itemsArray.count > 0) {
+        UIActivityViewController* activityVC = [[UIActivityViewController alloc] initWithActivityItems:itemsArray applicationActivities:nil];
+        [self presentViewController:activityVC animated:YES completion:nil];
+    }
+}
+
 @end

@@ -57,7 +57,25 @@
     return self;
 }
 
-- (void) shareGivenViewController:(UIViewController*)viewController {
+//- (void) shareGivenViewController:(UIViewController*)viewController {
+//    NSMutableArray* itemsToShare = [NSMutableArray array];
+//    
+//    if (self.caption.length > 0) {
+//        [itemsToShare addObject:self.caption];
+//    }
+//    
+//    if (self.image) {
+//        [itemsToShare addObject:self.image];
+//    }
+//    
+//    if (itemsToShare.count > 0) {
+//        UIActivityViewController* activityVC = [[UIActivityViewController alloc] initWithActivityItems:itemsToShare applicationActivities:nil];
+//        [viewController presentViewController:activityVC animated:YES completion:nil];
+//    }
+//
+//}
+
+- (NSArray*) createItemsToShare {
     NSMutableArray* itemsToShare = [NSMutableArray array];
     
     if (self.caption.length > 0) {
@@ -68,11 +86,7 @@
         [itemsToShare addObject:self.image];
     }
     
-    if (itemsToShare.count > 0) {
-        UIActivityViewController* activityVC = [[UIActivityViewController alloc] initWithActivityItems:itemsToShare applicationActivities:nil];
-        [viewController presentViewController:activityVC animated:YES completion:nil];
-    }
-
+    return itemsToShare;
 }
 
 

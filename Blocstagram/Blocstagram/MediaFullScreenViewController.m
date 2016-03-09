@@ -8,6 +8,7 @@
 
 #import "MediaFullScreenViewController.h"
 #import "Media.h" // can't rely on @class declaration in .h
+#import "UIViewController+AlertController.h" // for refactoring out sharing ActivityVC
 
 @interface MediaFullScreenViewController () <UIScrollViewDelegate, UIGestureRecognizerDelegate> // protocol
 
@@ -195,7 +196,8 @@
 }
 
 - (void) shareThisItem {
-    [self.media shareGivenViewController:self];
+    //[self.media shareGivenViewController:self];
+    [self shareItemsWithActivityController:[self.media createItemsToShare]];
 }
 
 // if zoomed out all the way, will center image in middle with equal margin space
