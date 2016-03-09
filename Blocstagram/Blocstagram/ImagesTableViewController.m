@@ -142,7 +142,7 @@
         imageLibraryVC.delegate = self;
         imageVC = imageLibraryVC;
     }
-    
+
     if (imageVC) {
         UINavigationController* nav = [[UINavigationController alloc] initWithRootViewController:imageVC];
         

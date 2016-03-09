@@ -17,9 +17,11 @@ typedef void (^SetDelegateCompletionBlock) (UIAlertAction*_Nonnull action); // i
 - (void) presentOKAlertWithError:(nullable NSError*)error withCompletionHandler:(nullable SetDelegateCompletionBlock)handler;
 - (void) presentCameraPermissionDeniedAlertWithCompletionHandler:(nullable void(^)(UIAlertAction*_Nonnull action))handler;
 
-//- (void) addAlertActionAndPresentAlert:(UIAlertController*)alertVC withCompletionHandler:(nullable void(^)(UIAlertAction*_Nonnull action))handler;
+// making public for PostToInstagramVC
+- (void) addAlertActionAndPresentAlert:(nonnull UIAlertController*)alertVC withCompletionHandler:(nullable void(^)(UIAlertAction*_Nonnull action))handler;
+
 
 // weird nullable can't follow *, also weird that _Nullable can't be placed before NSArray
-- (void) shareItemsWithActivityController:(nullable NSArray*)itemsArray;
+- (void) shareItemsWithActivityController:(NSArray*_Nullable)itemsArray;
 
 @end

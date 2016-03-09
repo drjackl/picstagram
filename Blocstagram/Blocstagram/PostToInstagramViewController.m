@@ -8,6 +8,7 @@
 
 #import "PostToInstagramViewController.h"
 #import "FilterCollectionViewCell.h" // for custom cell
+#import "UIViewController+AlertController.h" // for refactoring out AlertControllers
 
 @interface PostToInstagramViewController () <UICollectionViewDataSource, UICollectionViewDelegate, UIDocumentInteractionControllerDelegate>
 
@@ -159,13 +160,18 @@
             UITextField* textField = alertVC.textFields[0];
             [self sendImageToInstagramWithCaption:textField.text];
         }]];
+        
+        // needs to be here if refactoring out for other
+        [self presentViewController:alertVC animated:YES completion:nil];
     } else { // IG not installed
         alertVC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"No Instagram App", "no instagram app installed title") message:NSLocalizedString(@"Install Instagram to use this feature", @"install instagram instructions") preferredStyle:UIAlertControllerStyleAlert];
         
-        [alertVC addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK button") style:UIAlertActionStyleCancel handler:nil]];
-        
-        [self presentViewController:alertVC animated:YES completion:nil];
+        // refactored out adding action and preseting
+        [self addAlertActionAndPresentAlert:alertVC withCompletionHandler:nil];
+
     }
+
+    //        [self presentViewController:alertVC animated:YES completion:nil]; // before refactor
 }
 
 // more complex than UIActivityVC cuz need to write to disk and send to IG
@@ -181,8 +187,9 @@
     
     if (!success) {
         UIAlertController* alertVC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Couldn't save image", @"couldn't save image header") message:NSLocalizedString(@"Your cropped and filtered photo couldn't be saved. Make sure you have enough disk space and try again", @"couldn't save image message and recommendation") preferredStyle:UIAlertControllerStyleAlert];
-        [alertVC addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK button") style:UIAlertActionStyleCancel handler:nil]];
-        [self presentViewController:alertVC animated:YES completion:nil];
+        
+        [self addAlertActionAndPresentAlert:alertVC withCompletionHandler:nil];
+        
         return;
     }
     

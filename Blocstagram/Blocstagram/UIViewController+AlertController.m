@@ -20,11 +20,12 @@
     [self addAlertActionAndPresentAlert:alertVC withCompletionHandler:handler];
 }
 
-//- (void) addAlertActionAndPresentAlert:(UIAlertController*)alertVC withCompletionHandler:(void ^ (UIAlertAction*_Nonnull action))handler {
+
 - (void) addAlertActionAndPresentAlert:(UIAlertController*)alertVC withCompletionHandler:(nullable void(^)(UIAlertAction*_Nonnull action))handler {
     [alertVC addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK button") style:UIAlertActionStyleCancel handler:handler]]; // end alertVC addAction:
     
-    [self presentViewController:self animated:YES completion:nil];
+    // oops was sending self
+    [self presentViewController:alertVC animated:YES completion:nil];
 }
 
 // Activity Controller
