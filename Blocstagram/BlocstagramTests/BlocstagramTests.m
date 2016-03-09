@@ -7,6 +7,10 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "Media.h"
+#import "User.h" // necessary even though User never declared (User properties still used)
+#import "ComposeCommentView.h"
+#import "MediaTableViewCell.h"
 
 @interface BlocstagramTests : XCTestCase
 
@@ -23,6 +27,76 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
 }
+
+- (void) testMediaInitialzer {
+    NSDictionary* userDictionary = @{@"id": @"908asd9023kjasdf",
+                                     @"username": @"ps145",
+                                     @"full_name": @"Fake Johnson",
+                                     @"profile_picture": @"http://www.example.com/example.jpg"};
+    NSDictionary* mediaDictionary = @{@"id": @"872349khj09890",
+                                      @"user": userDictionary,
+                                      @"images": @{@"standard_resolution": @{@"url": @"https://d262ilb51hltx0.cloudfront.net/max/800/1*b3CaM-K2RNlcbfAl-L-uXA.png"}},
+                                      @"user_has_liked": @1,
+                                      @"likes": @{@"count": @55}};
+    Media* testMedia = [[Media alloc] initWithDictionary:mediaDictionary];
+    XCTAssertEqualObjects(testMedia.idNumber, mediaDictionary[@"id"], @"The ID number should be equal");
+    //NSLog(@"testMedia url: %@", testMedia.mediaURL);
+    //NSLog(@"mediaDictionary url: %@", mediaDictionary[@"images"][@"standard_resolution"][@"url"]);
+    XCTAssertEqualObjects(testMedia.mediaURL, [NSURL URLWithString:mediaDictionary[@"images"][@"standard_resolution"][@"url"]], @"The media URL should be equal");
+    XCTAssertEqual(testMedia.likeCount, [mediaDictionary[@"likes"][@"count"] intValue], @"The like count should be equal");
+    XCTAssertEqual(testMedia.likeState, [mediaDictionary[@"user_has_liked"] boolValue] ? LikeStateLiked : LikeStateNotLiked, @"The like state should be equal");
+    XCTAssertEqual(testMedia.likeState, LikeStateLiked, @"The like state should be Liked");
+    
+    XCTAssertEqualObjects(testMedia.user.idNumber, mediaDictionary[@"user"][@"id"], @"The User ID number should be equal");
+    XCTAssertEqualObjects(testMedia.user.userName, mediaDictionary[@"user"][@"username"], @"The User username should be equal");
+    XCTAssertEqualObjects(testMedia.user.fullName, mediaDictionary[@"user"][@"full_name"], @"The User's full name should be equal");
+    XCTAssertEqualObjects(testMedia.user.profilePictureURL, [NSURL URLWithString:mediaDictionary[@"user"][@"profile_picture"]], @"The User's profile pic should be equal");
+    
+}
+
+- (void) testComposeCommentSetsIsWritingComment {
+    ComposeCommentView* composeCommentView = [[ComposeCommentView alloc] init];
+    [composeCommentView setText:@"some comment text"];
+    XCTAssertTrue(composeCommentView.isWritingComment);
+    [composeCommentView setText:@""];
+    XCTAssertFalse(composeCommentView.isWritingComment);
+}
+
+- (void) testMediaTableViewCellsHeightForMediaMethod {
+    NSDictionary* userDictionary = @{//@"id": @"908asd9023kjasdf",
+                                     @"username": @"ps145"//,
+                                     //@"full_name": @"Fake Johnson",
+                                     //@"profile_picture": @"http://www.example.com/example.jpg"
+                                     };
+    NSDictionary* mediaDictionary = @{//@"id": @"872349khj09890",
+                                      @"user": userDictionary,
+                                      //@"images": @{@"standard_resolution": @{@"url": @"http://www.example.com/example.jpg"}},
+                                      //@"user_has_liked": @1,
+                                      @"likes": @{@"count": @55}
+                                      };
+    Media* testMedia = [[Media alloc] initWithDictionary:mediaDictionary];
+    //NSLog(@"%f", [MediaTableViewCell heightForMediaItem:testMedia width:3 traitCollection:nil]);
+    //XCTAssertEqual([MediaTableViewCell heightForMediaItem:testMedia width:3 traitCollection:nil], 4);
+    testMedia.image = [UIImage imageNamed:@"7.jpg"];
+    
+    // need to pass in traitcollection otherwise imageHeighConstraint doesn't get set
+    
+    // to test heightForMediaItem, need Media, set an image, set traitCollection, understand how height of cell is calculated from all subviews with auto-layout
+    
+    // constraint to test: V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel][_commentView(==100)
+    
+    // 1200x1600 item has height 4 for width 3 (so cell height == 4 + 109.667 + 0 + 100)
+    XCTAssertEqualWithAccuracy([MediaTableViewCell heightForMediaItem:testMedia width:3 traitCollection:[UITraitCollection traitCollectionWithHorizontalSizeClass:UIUserInterfaceSizeClassCompact]], 213, 2);
+    
+    // 1200x1600 item has height 1600 for height 1200 (so cell height == 1600 + 38 + 0 + 100)
+    XCTAssertEqualWithAccuracy([MediaTableViewCell heightForMediaItem:testMedia width:1200 traitCollection:[UITraitCollection traitCollectionWithHorizontalSizeClass:UIUserInterfaceSizeClassCompact]], 1738, 2);
+    
+    // 3200 + 38 + 0 + 100
+    XCTAssertEqualWithAccuracy([MediaTableViewCell heightForMediaItem:testMedia width:2400 traitCollection:[UITraitCollection traitCollectionWithHorizontalSizeClass:UIUserInterfaceSizeClassCompact]], 3338, 2);
+    
+    
+}
+
 
 - (void)testExample {
     // This is an example of a functional test case.

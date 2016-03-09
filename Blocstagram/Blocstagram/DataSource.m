@@ -433,7 +433,7 @@
         // afnetworking: try to download images
         [self.instagramOperationManager GET:mediaItem.mediaURL.absoluteString
                                  parameters:nil
-                                    success:^(AFHTTPRequestOperation* _Nonnull operation, id  _Nonnull responseObject) {
+                                    success:^(AFHTTPRequestOperation*_Nonnull operation, id _Nonnull responseObject) {
                                         if ([responseObject isKindOfClass:[UIImage class]]) {
                                             mediaItem.image = responseObject;
                                             
@@ -442,6 +442,9 @@
                                             
                                             NSMutableArray* mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
                                             NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
+                                            
+                                            NSLog(@"index of media item to be updated: %lu", index);
+                                            
                                             [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem]; // got a runtime error here logging in
                                             
                                             // retry downloads:

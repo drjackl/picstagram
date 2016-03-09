@@ -225,6 +225,7 @@
 
 // also see scrollViewDidScroll
 - (void) scrollViewWillBeginDecelerating:(UIScrollView*)scrollView {
+    NSLog(@"scroll view will begin decelerating called");
     [self downloadVisibleCells];
     
     // these are both always the same and at 0.998
@@ -235,8 +236,11 @@
 
 // goes through all visible cells and downloads if needs image
 - (void) downloadVisibleCells {
+    NSLog(@"downloadVisibleCells called");
     NSArray* visibleIndexPaths = [self.tableView indexPathsForVisibleRows];
+    NSLog(@"there are %ld visible index paths for visIndexPath array: %@", visibleIndexPaths.count, visibleIndexPaths);
     for (NSIndexPath* indexPath in visibleIndexPaths) {
+        NSLog(@"calling downloadIfNeedsImage at indexPath: %@", indexPath);
         [self downloadIfNeedsImageAtIndexPath:indexPath];
     }
 }
@@ -245,7 +249,9 @@
 // downloads only if needs image
 - (void) downloadIfNeedsImageAtIndexPath:(NSIndexPath*) indexPath {
     Media* media = [DataSource sharedInstance].mediaItems[indexPath.row]; // weird couldn't autocomplete .row (forgot the . after mediaItems)
+    NSLog(@"downloadIfNeeds called. media: %@", media);
     if (media.downloadState == MediaDownloadStateNeedsImage) {
+        NSLog(@"download state is NeedsImage so calling downloadImageForMedia");
         [[DataSource sharedInstance] downloadImageForMediaItem:media];
     }
 }
