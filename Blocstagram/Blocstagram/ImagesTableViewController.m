@@ -187,7 +187,7 @@
     }];
 }
 
-// checks if user scrolled to last phto
+// checks if user scrolled to last photo
 - (void) infiniteScrollIfNecessary {
     // get cells visible on screen and the last one shown
     NSIndexPath* bottomIndexPath = [[self.tableView indexPathsForVisibleRows] lastObject];
@@ -419,7 +419,7 @@
 
 - (void) cell:(MediaTableViewCell*)cell didTwoFingerTapImageView:(UIImageView*)imageView {
     NSLog(@"Two finger tap heard");
-    //[[DataSource sharedInstance] retryDownloadingMediaItem:cell.mediaItem];
+    // no more need to use retryDownloading
     [[DataSource sharedInstance] downloadImageForMediaItem:cell.mediaItem];
     
 }

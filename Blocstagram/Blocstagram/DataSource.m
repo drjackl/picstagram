@@ -78,8 +78,8 @@
         // initialize operation manager
         [self createOperationManager];
         
-        // weird, this line was missing in checkpoint 37
-        [self registerForAccessTokenNotification]; // register and respond to notification
+        // weird, this line was missing in checkpoint 37 (should be out cuz checking for keychain now, bad mistake)
+        //[self registerForAccessTokenNotification]; // register and respond to notification
         
         // keychain: can now short circuit registering to populating if exists
         self.accessToken = [UICKeyChainStore stringForKey:@"access token"];
