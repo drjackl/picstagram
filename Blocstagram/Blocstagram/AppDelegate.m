@@ -44,7 +44,7 @@
     
     // keychain: only show login VC if no access token, else skip to feed/table
     UINavigationController* navVC = [[UINavigationController alloc] init];
-//    if (![DataSource sharedInstance].accessToken) { // comment out to test loginVC
+    if (![DataSource sharedInstance].accessToken) { // comment out to test loginVC
         LoginViewController* loginVC = [[LoginViewController alloc] init];
         [navVC setViewControllers:@[loginVC] animated:YES];
         
@@ -52,11 +52,11 @@
             ImagesTableViewController* imagesVC = [[ImagesTableViewController alloc] init];
             [navVC setViewControllers:@[imagesVC] animated:YES];
         }];
-//    } else { // set the ImagesTableVC
-//        ImagesTableViewController* imagesVC = [[ImagesTableViewController alloc] init];
-//        [navVC setViewControllers:@[imagesVC] animated:YES];
-//    }
-    
+    } else { // set the ImagesTableVC
+        ImagesTableViewController* imagesVC = [[ImagesTableViewController alloc] init];
+        [navVC setViewControllers:@[imagesVC] animated:YES];
+    }
+
     self.window.rootViewController = navVC;
     
     [self.window makeKeyAndVisible];

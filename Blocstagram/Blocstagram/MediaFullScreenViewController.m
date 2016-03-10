@@ -18,8 +18,7 @@
 
 @property (nonatomic) UIButton* shareButton;
 
-@property (nonatomic) UITapGestureRecognizer* tap2;
-@property (nonatomic) UITapGestureRecognizer* recognizer;
+@property (nonatomic) UITapGestureRecognizer* tapBackground;
 
 @end
 
@@ -86,21 +85,23 @@
 - (void) viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    self.recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapBehind:)];
-    self.recognizer.delegate = self;
+    self.tapBackground = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapBehind:)];
+    self.tapBackground.delegate = self; // xcode's refactor sucks
     //[self.recognizer setNumberOfTapsRequired:1];
+    [self.tapBackground requireGestureRecognizerToFail:self.doubleTap];
+    [self.tapBackground requireGestureRecognizerToFail:self.tap]; // not really needed, since do same thing
     
     // ok so commenting this out fixed it! crop VC doesn't dismiss right away (and no runtime error after)
     //self.recognizer.cancelsTouchesInView = NO; //So the user can still interact with controls in the modal view
     
-    [self.view.window addGestureRecognizer:self.recognizer];
+    [self.view.window addGestureRecognizer:self.tapBackground]; // xcode's refactor sucks
 }
 
 // assume this is necessary too (from iOS9 swift link)
 - (void) viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     
-    [self.view.window removeGestureRecognizer:self.recognizer];
+    [self.view.window removeGestureRecognizer:self.tapBackground]; // xcode's refactor sucks
 }
 
 
