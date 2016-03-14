@@ -8,7 +8,7 @@
 
 #import "MediaFullScreenViewController.h"
 #import "Media.h" // can't rely on @class declaration in .h
-#import "UIViewController+AlertController.h" // for refactoring out sharing ActivityVC
+#import "UIViewController+DialoguePresentation.h" // for refactoring out sharing ActivityVC
 
 @interface MediaFullScreenViewController () <UIScrollViewDelegate, UIGestureRecognizerDelegate> // protocol
 

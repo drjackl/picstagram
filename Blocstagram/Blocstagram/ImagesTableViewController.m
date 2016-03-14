@@ -16,7 +16,7 @@
 #import "CameraViewController.h"
 #import "ImageLibraryViewController.h" // for photos
 #import "PostToInstagramViewController.h" // for posting
-#import "UIViewController+AlertController.h" // for refactoring out ActivityVC
+#import "UIViewController+DialoguePresentation.h" // for refactoring out ActivityVC
 
 // for fullscreen and camera VCs
 @interface ImagesTableViewController () <MediaTableViewCellDelegate, CameraViewControllerDelegate, ImageLibraryViewControllerDelegate>

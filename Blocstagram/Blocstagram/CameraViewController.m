@@ -12,7 +12,7 @@
 #import "UIImage+ImageUtilities.h" // for image rotations, cropping
 #import "CropBox.h" // refactored out since duplicating in photos view
 #import "ImageLibraryViewController.h"
-#import "UIViewController+AlertController.h" // for refactoring out AlertController
+#import "UIViewController+DialoguePresentation.h" // for refactoring out AlertController
 
 // add photo delegate
 @interface CameraViewController () <CameraToolbarDelegate, ImageLibraryViewControllerDelegate>
