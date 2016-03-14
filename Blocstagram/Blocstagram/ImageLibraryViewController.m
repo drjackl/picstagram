@@ -25,6 +25,10 @@
     // calls a different super
     UICollectionViewFlowLayout* layout = [[UICollectionViewFlowLayout alloc] init];
     layout.itemSize = CGSizeMake(100, 100); // updated once know device screen
+    
+    // thought this might fail since self wasn't init yet, but it works
+    self.navigationItem.title = NSLocalizedString(@"Photos Library", @"Photos Library");
+    
     return [super initWithCollectionViewLayout:layout];
 }
 

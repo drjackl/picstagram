@@ -40,6 +40,8 @@
     if (self) {
         // custom initialization
         //self.images = [NSMutableArray array]; // cheap model
+        
+        self.navigationItem.title = NSLocalizedString(@"Your Posts", @"Your Posts");
     }
     return self;
 }
